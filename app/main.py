@@ -17,7 +17,7 @@ with oneagent.get_sdk().trace_incoming_remote_call('method', 'service', 'endpoin
 
 print('It may take a few moments before the path appears in the UI.')
 input('Please wait...')
-oneagent.shutdown()
+
 app = FastAPI()
 
 @app.get("/")
