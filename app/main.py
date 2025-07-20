@@ -8,15 +8,15 @@ import oneagent
 # Detect Python implementation (eg. CPython)
 print(platform.python_implementation())
 
-# Python OneAgent SDK
-if not oneagent.initialize():
-    print('Error initializing OneAgent SDK.')
+# # Python OneAgent SDK
+# if not oneagent.initialize():
+#     print('Error initializing OneAgent SDK.')
 
-with oneagent.get_sdk().trace_incoming_remote_call('method', 'service', 'endpoint'):
-    pass
+# with oneagent.get_sdk().trace_incoming_remote_call('method', 'service', 'endpoint'):
+#     pass
 
-print('It may take a few moments before the path appears in the UI.')
-input('Please wait...')
+# print('It may take a few moments before the path appears in the UI.')
+# input('Please wait...')
 
 app = FastAPI()
 
