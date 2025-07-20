@@ -1,0 +1,8 @@
+FastAPI
+datetime
+timedelta
+uvicorn
+requests
+oneagent-sdk
+setuptools
+wheel
