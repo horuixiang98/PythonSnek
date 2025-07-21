@@ -32,6 +32,8 @@ app = FastAPI(
         openapi_tags=tags_metadata,
     )
 
+getsdk = oneagent.get_sdk
+
 @app.get("/")
 async def read_root():
     return {"Hello": "World"}
@@ -51,15 +53,20 @@ async def initOneAgentSDK():
 
 @app.get("/oneagentsdk/testtrace", tags=["OneAgent Python SDK"])
 async def testTrace():
-    with oneagent.get_sdk().trace_incoming_remote_call('method', 'service', 'endpoint'):
-        pass
-    # Perform some complex mathematical operations
-    result = 0
-    for i in range(1000):
-        result += (i ** 2) * (math.sin(i) + math.cos(i))
-    # Simulate heavy processing with sleep
-        await asyncio.sleep(2)
-        return result
+    try :
+        incall = getsdk().trace_incoming_remote_call(
+            'dummyPyMethod', 'DummyPyService',
+            'dupypr://localhost/dummyEndpoint',
+            protocol_name='DUMMY_PY_PROTOCOL', str_tag=strtag)
+        with incall:
+            result = 0
+            for i in range(1000):
+                result += (i ** 2) * (math.sin(i) + math.cos(i))
+            # Simulate heavy processing with sleep
+                await asyncio.sleep(2)
+                return result
+    except Exception as e:
+        return e
     
     
 
