@@ -10,4 +10,4 @@ RUN python -c "import oneagent; print(oneagent.initialize())"
 
 COPY ./app /code/app
 
-CMD ["uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--host", "localhost", "--port", "80"]
