@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    ports:
+      - "80:80" # Changed to use port 80
+    environment:
+      - APP_MODULE=app.main:app # Change this to your module path
+      - PORT=80 # Changed internal port to 80
+      - LOG_LEVEL=info
+      - RELOAD=${RELOAD:-false} # Set to true for development
+    volumes:
+      - .:/code
+    command: >
+      sh -c "uvicorn $$APP_MODULE --host 0.0.0.0 --port $$PORT --log-level $$LOG_LEVEL
+      $([ "$$RELOAD" = "true" ] && echo "--reload")"
