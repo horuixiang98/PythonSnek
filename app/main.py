@@ -12,7 +12,7 @@ import math
 # Detect Python implementation (eg. CPython)
 print(platform.python_implementation())
 
-sdk = oneagent.get_sdk()
+sdk = onesdk()
 
 description = """
 Python Snek API helps you do awesome stuff. 🚀
@@ -37,6 +37,41 @@ app = FastAPI(
         openapi_tags=tags_metadata,
     )
 
+async def startup_event():
+    print('Agent state:', oneagent.get_sdk().agent_state)
+    print('Agent found:', oneagent.get_sdk().agent_found)
+    print('Agent is compatible:', oneagent.get_sdk().agent_is_compatible)
+    print('Agent version:', oneagent.get_sdk().agent_version_string)
+    if sdk.get_current_state() != OneAgentSDK.State.ACTIVE:
+        print("Dynatrace OneAgent SDK not active!")
+    else:
+        print("Dynatrace OneAgent SDK is active")
+
+# Middleware to trace all incoming requests
+@app.middleware("http")
+async def add_dynatrace_trace(request: Request, call_next):
+    with sdk.trace_incoming_web_request(
+        url=str(request.url),
+        method=request.method,
+        remote_host=request.client.host if request.client else "unknown",
+        remote_port=request.client.port if request.client else 0,
+        headers=dict(request.headers)
+    ) as tracer:
+        tracer.start()
+        
+        # Add the tracer to the request state for use in endpoints
+        request.state.dynatrace_tracer = tracer
+        
+        try:
+            response = await call_next(request)
+            tracer.set_status_code(response.status_code)
+            return response
+        except Exception as e:
+            tracer.error(str(e))
+            raise
+        finally:
+            tracer.end()
+
 @app.get("/")
 async def read_root():
     return {"Hello": "World"}
@@ -44,23 +79,6 @@ async def read_root():
 @app.get("/items/{item_id}")
 async def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
-
-@app.get("/oneagentsdk/init", tags=["OneAgent Python SDK"])
-async def initOneAgentSDK():
-    init_result = oneagent.initialize()
-    # print('OneAgent SDK initialization result' + repr(init_result))
-    if init_result:
-        with oneagent.get_sdk().trace_incoming_remote_call('method', 'service', 'endpoint'):
-            pass
-        if sdk.agent_state not in (AgentState.ACTIVE, AgentState.TEMPORARILY_INACTIVE):
-            print('Too bad, you will not see data from this process.')
-            print('Agent state:', oneagent.get_sdk().agent_state)
-            print('Agent found:', oneagent.get_sdk().agent_found)
-            print('Agent is compatible:', oneagent.get_sdk().agent_is_compatible)
-            print('Agent version:', oneagent.get_sdk().agent_version_string)
-        return 'SDK should work (but agent might be inactive).'
-    else:
-        return 'SDK will definitely not work (i.e. functions will be no-ops):', init_result
 
 # @app.get("/oneagentsdk/testtrace", tags=["OneAgent Python SDK"])
 # async def testTrace(request: Request):
