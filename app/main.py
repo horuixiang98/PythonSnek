@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from datetime import datetime, timedelta
 import asyncio
 from typing import Dict, List
@@ -51,48 +51,89 @@ async def initOneAgentSDK():
         return 'SDK will definitely not work (i.e. functions will be no-ops):', init_result
 
 @app.get("/oneagentsdk/testtrace", tags=["OneAgent Python SDK"])
-async def testTrace():
+async def testTrace(request: Request):
+    # Initialize SDK if not already done
+    if not oneagent.initialize():
+        init_result = oneagent.initialize()
+        if not init_result:
+            return {"error": "OneAgent SDK failed to initialize"}
+
     sdk = oneagent.get_sdk()
+
+    # Create web application info (similar to the documentation example)
     wappinfo = sdk.create_web_application_info(
-        virtual_host='example.com', # Logical name of the host server.
-        application_id='MyWebApplication', # Unique web application ID.
-        context_root='/my-web-app/') # App's prefix of the path part of the URL.
+        virtual_host=request.headers.get("host", "localhost"),
+        application_id="PythonSnekApp",
+        context_root="/"
+    )
 
     with wappinfo:
-        # This with-block will automatically free web application info handle
-        # at the end. Note that the handle can be used for multiple tracers. In
-        # general, it is recommended to reuse web application info handles as
-        # often as possible (for efficiency reasons). For example, if you use
-        # WSGI, the web application info could be stored as an attribute of the
-        # application object.
-        #
-        # Note that different ways to specify headers, response headers and
-        # parameter (form fields) not shown here also exist. Consult the
-        # documentation for trace_incoming_web_request and
-        # IncomingWebRequestTracer.
+        # Trace incoming web request
         wreq = sdk.trace_incoming_web_request(
-            wappinfo,
-            'http://example.com/my-web-app/foo?bar=baz',
-            'GET',
-            headers={'Host': 'example.com', 'X-foo': 'bar'},
-            remote_address='127.0.0.1:12345')
+            webapp_info=wappinfo,
+            url=str(request.url),
+            method=request.method,
+            headers=dict(request.headers),
+            remote_address=request.client.host if request.client else "unknown"
+        )
+
         with wreq:
-            wreq.add_parameter('my_form_field', '1234')
-            # Process web request
-            wreq.add_response_headers({'Content-Length': '1234'})
-            wreq.set_status_code(200) # OK
+            # Set response code
+            wreq.set_status_code(200)
 
-            # Add 3 different custom attributes.
-            sdk.add_custom_request_attribute('custom int attribute', 42)
-            sdk.add_custom_request_attribute('custom float attribute', 1.778)
-            sdk.add_custom_request_attribute('custom string attribute', 'snow is falling')
+            # Add custom attributes
+            sdk.add_custom_request_attribute("framework", "FastAPI")
+            sdk.add_custom_request_attribute("endpoint", "/oneagentsdk/testtrace")
 
-            # This call will trigger the diagnostic callback.
-            sdk.add_custom_request_attribute('another key', None)
+            # Trace a database operation (as shown in documentation)
+            db_info = sdk.create_database_info(
+                "test_db",  # database name
+                "POSTGRESQL",  # vendor
+                onesdk.Channel(onesdk.ChannelType.TCP_IP, "localhost:5432")  # connection
+            )
 
-            # This call simulates incoming messages.
-            return wreq
+            db_trace = sdk.trace_sql_database_request(
+                database=db_info,
+                sql="SELECT * FROM dummy",
+            )
+            with db_trace:
+                await asyncio.sleep(0.1)  # Simulate DB query
+                db_trace.set_rows_returned(1)
 
+            # Trace a remote call
+            remote_trace = sdk.trace_outgoing_remote_call(
+                "payment_service",
+                "process_payment",
+                "payment.service:8080",
+                onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
+                "POST",
+            )
+            with remote_trace:
+                await asyncio.sleep(0.2)  # Simulate remote call
+                # remote_trace.set_status_code(200)
+
+            # Calculate primes (CPU work simulation)
+            primes = []
+            for num in range(2, 100):
+                if all(num % i != 0 for i in range(2, int(math.sqrt(num)) + 1)):
+                    primes.append(num)
+
+            # Add response headers
+            wreq.add_response_headers({
+                "Content-Type": "application/json",
+                "X-Custom-Header": "PythonSnek"
+            })
+
+            return {
+                "message": "Trace test completed successfully",
+                "primes_calculated": len(primes),
+                "sdk_status": "initialized",
+                "trace_details": {
+                    "web_request": True,
+                    "database": True,
+                    "remote_call": True
+                }
+            }
 # async def testTrace():
 #     try :
 #         incall = getsdk().trace_incoming_remote_call(
