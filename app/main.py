@@ -8,7 +8,8 @@ sdk = oneagent.get_sdk()
 # Check SDK status at startup
 @app.on_event("startup")
 async def startup_event():
-    if sdk.get_current_state() != OneAgentSDK.State.ACTIVE:
+    init_result = oneagent.initialize()
+    if init_result:
         print("Dynatrace OneAgent SDK not active!")
     else:
         print("Dynatrace OneAgent SDK is active")
