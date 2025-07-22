@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Request
-from oneagent.sdk import OneAgentSDK
+import oneagent
 import time
 
 app = FastAPI()
-sdk = OneAgentSDK()
+sdk = oneagent.get_sdk()
 
 # Check SDK status at startup
 @app.on_event("startup")
