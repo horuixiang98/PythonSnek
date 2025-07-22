@@ -168,14 +168,14 @@ async def simple_trace(request: Request):
     ) as web_app_info:
         
         with sdk.trace_incoming_web_request(
-            webapp_info=web_app_info,
-            url=str(request.url),
-            method=request.method,
+            web_app_info,
+            str(request.url),
+            request.method,
             headers=dict(request.headers),
             remote_address=request.client.host if request.client else "unknown"
         ) as web_trace:
-            
             web_trace.set_status_code(200)  # Mark the request as successful
             sdk.add_custom_request_attribute("endpoint", "/simple-trace")
+            oneagent.shutdown()
 
             return {"message": "This is a single traced request!"}
