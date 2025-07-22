@@ -17,3 +17,7 @@ services:
       sh -c "uvicorn $$APP_MODULE --host 0.0.0.0 --port $$PORT --log-level $$LOG_LEVEL
       $([ "$$RELOAD" = "true" ] && echo "--reload")"
     network_mode: bridge
+    resources:
+      limits:
+        memory: "4Gi" # Minimum 4GB RAM recommended
+        cpu: "2"

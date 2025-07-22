@@ -46,7 +46,9 @@ async def read_item(item_id: int, q: str = None):
 
 @app.get("/oneagentsdk/init", tags=["OneAgent Python SDK"])
 async def initOneAgentSDK():
-    init_result = oneagent.initialize()
+    init_result = oneagent.initialize(
+        enable_multiprocessing_instrumentation=True
+    )
     # print('OneAgent SDK initialization result' + repr(init_result))
     if init_result:
         with oneagent.get_sdk().trace_incoming_remote_call('method', 'service', 'endpoint'):
