@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from urllib.request import Request
 from datetime import datetime, timedelta
 import asyncio
 from typing import Dict, List
@@ -175,7 +176,7 @@ async def simple_trace(request: Request):
             return {"message": "This is a single traced request!"}
 
 @app.get("/simple-trace2")
-async def simple_trace2(request: Request):
+async def simple_trace2():
     # Initialize OneAgent SDK
     if not oneagent.initialize():
         return {"error": "OneAgent SDK not initialized"}
@@ -184,7 +185,7 @@ async def simple_trace2(request: Request):
     # Create your web request.
     url = 'http://example.com'
 
-    req = request(url)
+    req = Request(url)
     req.add_header('header1', '1234')
     req.add_header('header2', '5678')
     tracer = sdk.trace_outgoing_web_request(url, req.get_method(), req.headers)
