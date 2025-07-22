@@ -58,122 +58,121 @@ async def initOneAgentSDK():
             print('Agent found:', oneagent.get_sdk().agent_found)
             print('Agent is compatible:', oneagent.get_sdk().agent_is_compatible)
             print('Agent version:', oneagent.get_sdk().agent_version_string)
-        oneagent.shutdown()
         return 'SDK should work (but agent might be inactive).'
     else:
         return 'SDK will definitely not work (i.e. functions will be no-ops):', init_result
 
-@app.get("/oneagentsdk/testtrace", tags=["OneAgent Python SDK"])
-async def testTrace(request: Request):
-    # Initialize SDK if not already done
-    if not oneagent.initialize():
-        init_result = oneagent.initialize()
-        if not init_result:
-            return {"error": "OneAgent SDK failed to initialize"}
+# @app.get("/oneagentsdk/testtrace", tags=["OneAgent Python SDK"])
+# async def testTrace(request: Request):
+#     # Initialize SDK if not already done
+#     if not oneagent.initialize():
+#         init_result = oneagent.initialize()
+#         if not init_result:
+#             return {"error": "OneAgent SDK failed to initialize"}
 
-    sdk = oneagent.get_sdk()
+#     sdk = oneagent.get_sdk()
 
-    # Create web application info (similar to the documentation example)
-    wappinfo = sdk.create_web_application_info(
-        virtual_host=request.headers.get("host", "localhost"),
-        application_id="PythonSnekApp",
-        context_root="/"
-    )
+#     # Create web application info (similar to the documentation example)
+#     wappinfo = sdk.create_web_application_info(
+#         virtual_host=request.headers.get("host", "localhost"),
+#         application_id="PythonSnekApp",
+#         context_root="/"
+#     )
 
-    with wappinfo:
-        # Trace incoming web request
-        wreq = sdk.trace_incoming_web_request(
-            webapp_info=wappinfo,
-            url=str(request.url),
-            method=request.method,
-            headers=dict(request.headers),
-            remote_address=request.client.host if request.client else "unknown"
-        )
+#     with wappinfo:
+#         # Trace incoming web request
+#         wreq = sdk.trace_incoming_web_request(
+#             webapp_info=wappinfo,
+#             url=str(request.url),
+#             method=request.method,
+#             headers=dict(request.headers),
+#             remote_address=request.client.host if request.client else "unknown"
+#         )
 
-        with wreq:
-            # Set response code
-            wreq.set_status_code(200)
+#         with wreq:
+#             # Set response code
+#             wreq.set_status_code(200)
 
-            # Add custom attributes
-            sdk.add_custom_request_attribute("framework", "FastAPI")
-            sdk.add_custom_request_attribute("endpoint", "/oneagentsdk/testtrace")
+#             # Add custom attributes
+#             sdk.add_custom_request_attribute("framework", "FastAPI")
+#             sdk.add_custom_request_attribute("endpoint", "/oneagentsdk/testtrace")
 
-            # Trace a database operation (as shown in documentation)
-            db_info = sdk.create_database_info(
-                "test_db",  # database name
-                "POSTGRESQL",  # vendor
-                onesdk.Channel(onesdk.ChannelType.TCP_IP, "localhost:5432")  # connection
-            )
+#             # Trace a database operation (as shown in documentation)
+#             db_info = sdk.create_database_info(
+#                 "test_db",  # database name
+#                 "POSTGRESQL",  # vendor
+#                 onesdk.Channel(onesdk.ChannelType.TCP_IP, "localhost:5432")  # connection
+#             )
 
-            db_trace = sdk.trace_sql_database_request(
-                database=db_info,
-                sql="SELECT * FROM dummy",
-            )
-            with db_trace:
-                await asyncio.sleep(0.1)  # Simulate DB query
-                db_trace.set_rows_returned(1)
+#             db_trace = sdk.trace_sql_database_request(
+#                 database=db_info,
+#                 sql="SELECT * FROM dummy",
+#             )
+#             with db_trace:
+#                 await asyncio.sleep(0.1)  # Simulate DB query
+#                 db_trace.set_rows_returned(1)
 
-            # Trace a remote call
-            remote_trace = sdk.trace_outgoing_remote_call(
-                "payment_service",
-                "process_payment",
-                "payment.service:8080",
-                onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
-                "POST",
-            )
-            with remote_trace:
-                await asyncio.sleep(0.2)  # Simulate remote call
-                # remote_trace.set_status_code(200)
+#             # Trace a remote call
+#             remote_trace = sdk.trace_outgoing_remote_call(
+#                 "payment_service",
+#                 "process_payment",
+#                 "payment.service:8080",
+#                 onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
+#                 "POST",
+#             )
+#             with remote_trace:
+#                 await asyncio.sleep(0.2)  # Simulate remote call
+#                 # remote_trace.set_status_code(200)
 
-            # Calculate primes (CPU work simulation)
-            primes = []
-            for num in range(2, 100):
-                if all(num % i != 0 for i in range(2, int(math.sqrt(num)) + 1)):
-                    primes.append(num)
+#             # Calculate primes (CPU work simulation)
+#             primes = []
+#             for num in range(2, 100):
+#                 if all(num % i != 0 for i in range(2, int(math.sqrt(num)) + 1)):
+#                     primes.append(num)
 
-            # Add response headers
-            wreq.add_response_headers({
-                "Content-Type": "application/json",
-                "X-Custom-Header": "PythonSnek"
-            })
+#             # Add response headers
+#             wreq.add_response_headers({
+#                 "Content-Type": "application/json",
+#                 "X-Custom-Header": "PythonSnek"
+#             })
 
-            return {
-                "message": "Trace test completed successfully",
-                "primes_calculated": len(primes),
-                "sdk_status": oneagent.initialize(),
-                "trace_details": {
-                    "web_request": True,
-                    "database": True,
-                    "remote_call": True
-                }
-            }
+#             return {
+#                 "message": "Trace test completed successfully",
+#                 "primes_calculated": len(primes),
+#                 "sdk_status": oneagent.initialize(),
+#                 "trace_details": {
+#                     "web_request": True,
+#                     "database": True,
+#                     "remote_call": True
+#                 }
+#             }
 
 
-@app.get("/simple-trace")
-async def simple_trace(request: Request):
-    # Initialize OneAgent SDK
-    if not oneagent.initialize():
-        return {"error": "OneAgent SDK not initialized"}
+# @app.get("/simple-trace")
+# async def simple_trace(request: Request):
+#     # Initialize OneAgent SDK
+#     if not oneagent.initialize():
+#         return {"error": "OneAgent SDK not initialized"}
 
-    sdk = oneagent.get_sdk()
+#     sdk = oneagent.get_sdk()
 
-    # 1️⃣ Trace ONLY the incoming HTTP request (will appear in Dynatrace)
-    with sdk.create_web_application_info(
-        virtual_host=request.headers.get("host", "localhost"),
-        application_id="PythonSnekApp",
-        context_root="/"
-    ) as web_app_info:
+#     # 1️⃣ Trace ONLY the incoming HTTP request (will appear in Dynatrace)
+#     with sdk.create_web_application_info(
+#         virtual_host=request.headers.get("host", "localhost"),
+#         application_id="PythonSnekApp",
+#         context_root="/"
+#     ) as web_app_info:
         
-        with sdk.trace_incoming_web_request(
-            web_app_info,
-            str(request.url),
-            request.method,
-            headers=dict(request.headers),
-            remote_address=request.client.host if request.client else "unknown"
-        ) as web_trace:
-            web_trace.set_status_code(200)  # Mark the request as successful
-            sdk.add_custom_request_attribute("endpoint", "/simple-trace")
-            return {"message": "This is a single traced request!"}
+#         with sdk.trace_incoming_web_request(
+#             web_app_info,
+#             str(request.url),
+#             request.method,
+#             headers=dict(request.headers),
+#             remote_address=request.client.host if request.client else "unknown"
+#         ) as web_trace:
+#             web_trace.set_status_code(200)  # Mark the request as successful
+#             sdk.add_custom_request_attribute("endpoint", "/simple-trace")
+#             return {"message": "This is a single traced request!"}
 
 @app.get("/simple-trace2")
 async def simple_trace2():
