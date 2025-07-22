@@ -17,11 +17,16 @@ async def startup_event():
 # Middleware to trace all incoming requests
 @app.middleware("http")
 async def add_dynatrace_trace(request: Request, call_next):
+    webapp_info = sdk.create_web_application_info(
+        virtual_host=request.url.hostname,  # or your specific application name
+        application_id="my-fastapi-app",    # your application identifier
+        context_root="/"                    # base path of your application
+    )
+
     with sdk.trace_incoming_web_request(
+        webapp_info=webapp_info,
         url=str(request.url),
         method=request.method,
-        remote_host=request.client.host if request.client else "unknown",
-        remote_port=request.client.port if request.client else 0,
         headers=dict(request.headers)
     ) as tracer:
         tracer.start()
