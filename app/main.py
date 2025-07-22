@@ -191,9 +191,9 @@ async def simple_trace2():
     with tracer:
         # Get and set the Dynatrace tag.
         tag = tracer.outgoing_dynatrace_string_tag
-        req.add_header(DYNATRACE_HTTP_HEADER_NAME, tag)
+        req.add_header('Dynatrace-Tag', tag)
         # Here you process and send the web request.
-        response = _process_your_outgoing_request(req)
-        tracer.add_response_headers({'Content-Length': response.get_content_length()})
-        tracer.set_status_code(response.get_status_code())
+        # response = _process_your_outgoing_request(req)
+        # tracer.add_response_headers({'Content-Length': response.get_content_length()})
+        tracer.set_status_code(tracer.set_status_code(200))
         return tracer
