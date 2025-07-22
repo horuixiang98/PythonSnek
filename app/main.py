@@ -192,6 +192,6 @@ async def simple_trace(request: Request):
             # Get and set the Dynatrace tag.
             tag = tracer.outgoing_dynatrace_string_tag
             req.add_header(DYNATRACE_HTTP_HEADER_NAME, tag)
-
             # Here you process and send the web request.
             response = _process_your_outgoing_request(req)
+            return response
