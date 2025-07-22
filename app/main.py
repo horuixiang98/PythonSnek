@@ -189,9 +189,9 @@ async def simple_trace(request: Request):
     req.add_header('header2', '5678')
     tracer = sdk.trace_outgoing_web_request(url, req.get_method(), req.headers)
     with tracer:
-            # Get and set the Dynatrace tag.
-            tag = tracer.outgoing_dynatrace_string_tag
-            req.add_header(DYNATRACE_HTTP_HEADER_NAME, tag)
-            # Here you process and send the web request.
-            response = _process_your_outgoing_request(req)
-            return response
+        # Get and set the Dynatrace tag.
+        tag = tracer.outgoing_dynatrace_string_tag
+        req.add_header(DYNATRACE_HTTP_HEADER_NAME, tag)
+        # Here you process and send the web request.
+        response = _process_your_outgoing_request(req)
+        return response
