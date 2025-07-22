@@ -56,6 +56,7 @@ async def initOneAgentSDK():
             print('Agent state:', oneagent.get_sdk().agent_state)
             print('Agent found:', oneagent.get_sdk().agent_found)
             print('Agent is compatible:', oneagent.get_sdk().agent_is_compatible)
+            print('Agent version:', oneagent.get_sdk().agent_version_string)
         oneagent.shutdown()
         return 'SDK should work (but agent might be inactive).'
     else:
