@@ -135,9 +135,6 @@ async def testTrace(request: Request):
                 "Content-Type": "application/json",
                 "X-Custom-Header": "PythonSnek"
             })
-            # Shutdown SDK
-            if shutdown_error:
-                print('Error shutting down SDK:', shutdown_error)
 
             return {
                 "message": "Trace test completed successfully",
