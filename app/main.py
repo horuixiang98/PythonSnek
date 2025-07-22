@@ -136,7 +136,6 @@ async def testTrace(request: Request):
                 "X-Custom-Header": "PythonSnek"
             })
             # Shutdown SDK
-            shutdown_error = oneagent.shutdown()
             if shutdown_error:
                 print('Error shutting down SDK:', shutdown_error)
 
@@ -176,6 +175,4 @@ async def simple_trace(request: Request):
         ) as web_trace:
             web_trace.set_status_code(200)  # Mark the request as successful
             sdk.add_custom_request_attribute("endpoint", "/simple-trace")
-            oneagent.shutdown()
-
             return {"message": "This is a single traced request!"}
