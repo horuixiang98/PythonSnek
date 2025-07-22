@@ -53,6 +53,9 @@ async def initOneAgentSDK():
             pass
         if sdk.agent_state not in (AgentState.ACTIVE, AgentState.TEMPORARILY_INACTIVE):
             print('Too bad, you will not see data from this process.')
+            print('Agent state:', oneagent.get_sdk().agent_state)
+            print('Agent found:', oneagent.get_sdk().agent_found)
+            print('Agent is compatible:', oneagent.get_sdk().agent_is_compatible)
         oneagent.shutdown()
         return 'SDK should work (but agent might be inactive).'
     else:
