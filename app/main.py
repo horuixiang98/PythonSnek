@@ -175,7 +175,7 @@ async def simple_trace(request: Request):
             return {"message": "This is a single traced request!"}
 
 @app.get("/simple-trace2")
-async def simple_trace(request: Request):
+async def simple_trace2(request: Request):
     # Initialize OneAgent SDK
     if not oneagent.initialize():
         return {"error": "OneAgent SDK not initialized"}
@@ -184,7 +184,7 @@ async def simple_trace(request: Request):
     # Create your web request.
     url = 'http://example.com'
 
-    req = Request(url)
+    req = request(url)
     req.add_header('header1', '1234')
     req.add_header('header2', '5678')
     tracer = sdk.trace_outgoing_web_request(url, req.get_method(), req.headers)
