@@ -123,11 +123,15 @@ async def testTrace(request: Request):
                 "Content-Type": "application/json",
                 "X-Custom-Header": "PythonSnek"
             })
+            # Shutdown SDK
+            shutdown_error = oneagent.shutdown()
+            if shutdown_error:
+                print('Error shutting down SDK:', shutdown_error)
 
             return {
                 "message": "Trace test completed successfully",
                 "primes_calculated": len(primes),
-                "sdk_status": "initialized",
+                "sdk_status": oneagent.initialize(),
                 "trace_details": {
                     "web_request": True,
                     "database": True,
