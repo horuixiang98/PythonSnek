@@ -150,19 +150,32 @@ async def testTrace(request: Request):
                     "remote_call": True
                 }
             }
-# async def testTrace():
-#     try :
-#         incall = getsdk().trace_incoming_remote_call(
-#             'dummyPyMethod', 'DummyPyService',
-#             'dupypr://localhost/dummyEndpoint',
-#             protocol_name='DUMMY_PY_PROTOCOL', str_tag=strtag)
-#         with incall:
-#             result = 0
-#             for i in range(1000):
-#                 result += (i ** 2) * (math.sin(i) + math.cos(i))
-#             # Simulate heavy processing with sleep
-#                 await asyncio.sleep(2)
-#                 return result
-#     except Exception as e:
-#         return e
-    
+
+
+@app.get("/simple-trace")
+async def simple_trace(request: Request):
+    # Initialize OneAgent SDK
+    if not oneagent.initialize():
+        return {"error": "OneAgent SDK not initialized"}
+
+    sdk = oneagent.get_sdk()
+
+    # 1️⃣ Trace ONLY the incoming HTTP request (will appear in Dynatrace)
+    with sdk.create_web_application_info(
+        virtual_host=request.headers.get("host", "localhost"),
+        application_id="PythonSnekApp",
+        context_root="/"
+    ) as web_app_info:
+        
+        with sdk.trace_incoming_web_request(
+            webapp_info=web_app_info,
+            url=str(request.url),
+            method=request.method,
+            headers=dict(request.headers),
+            remote_address=request.client.host if request.client else "unknown"
+        ) as web_trace:
+            
+            web_trace.set_status_code(200)  # Mark the request as successful
+            sdk.add_custom_request_attribute("endpoint", "/simple-trace")
+
+            return {"message": "This is a single traced request!"}
