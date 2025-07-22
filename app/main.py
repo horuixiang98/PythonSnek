@@ -46,6 +46,8 @@ async def initOneAgentSDK():
     init_result = oneagent.initialize()
     # print('OneAgent SDK initialization result' + repr(init_result))
     if init_result:
+        with oneagent.get_sdk().trace_incoming_remote_call('method', 'service', 'endpoint'):
+            pass
         return 'SDK should work (but agent might be inactive).'
     else:
         return 'SDK will definitely not work (i.e. functions will be no-ops):', init_result
