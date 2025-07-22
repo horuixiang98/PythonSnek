@@ -4,6 +4,7 @@ import asyncio
 from typing import Dict, List
 import platform
 import oneagent
+import oneagent.sdk as onesdk # All other SDK functions.
 import math
 
 # Detect Python implementation (eg. CPython)
@@ -32,8 +33,6 @@ app = FastAPI(
         openapi_tags=tags_metadata,
     )
 
-getsdk = oneagent.get_sdk
-
 @app.get("/")
 async def read_root():
     return {"Hello": "World"}
@@ -53,112 +52,60 @@ async def initOneAgentSDK():
 
 @app.get("/oneagentsdk/testtrace", tags=["OneAgent Python SDK"])
 async def testTrace():
-    try :
-        incall = getsdk().trace_incoming_remote_call(
-            'dummyPyMethod', 'DummyPyService',
-            'dupypr://localhost/dummyEndpoint',
-            protocol_name='DUMMY_PY_PROTOCOL', str_tag=strtag)
-        with incall:
-            result = 0
-            for i in range(1000):
-                result += (i ** 2) * (math.sin(i) + math.cos(i))
-            # Simulate heavy processing with sleep
-                await asyncio.sleep(2)
-                return result
-    except Exception as e:
-        return e
-    
-    
+    sdk = oneagent.get_sdk()
+    wappinfo = sdk.create_web_application_info(
+        virtual_host='example.com', # Logical name of the host server.
+        application_id='MyWebApplication', # Unique web application ID.
+        context_root='/my-web-app/') # App's prefix of the path part of the URL.
 
+    with wappinfo:
+        # This with-block will automatically free web application info handle
+        # at the end. Note that the handle can be used for multiple tracers. In
+        # general, it is recommended to reuse web application info handles as
+        # often as possible (for efficiency reasons). For example, if you use
+        # WSGI, the web application info could be stored as an attribute of the
+        # application object.
+        #
+        # Note that different ways to specify headers, response headers and
+        # parameter (form fields) not shown here also exist. Consult the
+        # documentation for trace_incoming_web_request and
+        # IncomingWebRequestTracer.
+        wreq = sdk.trace_incoming_web_request(
+            wappinfo,
+            'http://example.com/my-web-app/foo?bar=baz',
+            'GET',
+            headers={'Host': 'example.com', 'X-foo': 'bar'},
+            remote_address='127.0.0.1:12345')
+        with wreq:
+            wreq.add_parameter('my_form_field', '1234')
+            # Process web request
+            wreq.add_response_headers({'Content-Length': '1234'})
+            wreq.set_status_code(200) # OK
 
-# Store intervals data in memory
-# intervals_data: Dict[str, List[Dict]] = {}
+            # Add 3 different custom attributes.
+            sdk.add_custom_request_attribute('custom int attribute', 42)
+            sdk.add_custom_request_attribute('custom float attribute', 1.778)
+            sdk.add_custom_request_attribute('custom string attribute', 'snow is falling')
 
-# @app.post("/intervals/create")
-# async def create_interval(start: int, end: int, step: int = 1):
-#     """Create a complex interval with validation and processing"""
-#     try:
-#         # Validate input parameters
-#         if start >= end:
-#             return {"error": "Start must be less than end"}
-#         if step <= 0:
-#             return {"error": "Step must be positive"}
-            
-#         # Generate unique interval ID
-#         interval_id = datetime.now().strftime("%Y%m%d%H%M%S")
-        
-#         # Calculate interval points with complex logic
-#         points = []
-#         current = start
-#         while current <= end:
-#             # Add some complexity with mathematical transformations
-#             transformed_value = {
-#                 "original": current,
-#                 "squared": current ** 2,
-#                 "cubic": current ** 3,
-#                 "timestamp": datetime.now() + timedelta(seconds=current),
-#                 "fibonacci": calculate_fibonacci(current % 10)  # Get fibonacci of last digit
-#             }
-#             points.append(transformed_value)
-#             current += step
-            
-#         # Store interval data
-#         intervals_data[interval_id] = points
-        
-#         return {
-#             "interval_id": interval_id,
-#             "points_count": len(points),
-#             "start": start,
-#             "end": end,
-#             "step": step
-#         }
-        
+            # This call will trigger the diagnostic callback.
+            sdk.add_custom_request_attribute('another key', None)
+
+            # This call simulates incoming messages.
+            return wreq
+
+# async def testTrace():
+#     try :
+#         incall = getsdk().trace_incoming_remote_call(
+#             'dummyPyMethod', 'DummyPyService',
+#             'dupypr://localhost/dummyEndpoint',
+#             protocol_name='DUMMY_PY_PROTOCOL', str_tag=strtag)
+#         with incall:
+#             result = 0
+#             for i in range(1000):
+#                 result += (i ** 2) * (math.sin(i) + math.cos(i))
+#             # Simulate heavy processing with sleep
+#                 await asyncio.sleep(2)
+#                 return result
 #     except Exception as e:
-#         return {"error": str(e)}
-
-# @app.get("/intervals/{interval_id}")
-# async def get_interval(interval_id: str):
-#     """Retrieve interval data with additional analytics"""
-#     if interval_id not in intervals_data:
-#         return {"error": "Interval not found"}
-        
-#     points = intervals_data[interval_id]
+#         return e
     
-#     # Calculate analytics
-#     analytics = {
-#         "total_points": len(points),
-#         "average_original": sum(p["original"] for p in points) / len(points),
-#         "max_squared": max(p["squared"] for p in points),
-#         "min_squared": min(p["squared"] for p in points),
-#         "timestamp_range": {
-#             "start": min(p["timestamp"] for p in points),
-#             "end": max(p["timestamp"] for p in points)
-#         }
-#     }
-    
-#     return {
-#         "interval_id": interval_id,
-#         "points": points,
-#         "analytics": analytics
-#     }
-
-# def calculate_fibonacci(n: int) -> int:
-#     """Helper function to calculate fibonacci number"""
-#     if n <= 0:
-#         return 0
-#     elif n == 1:
-#         return 1
-#     else:
-#         a, b = 0, 1
-#         for _ in range(2, n + 1):
-#             a, b = b, a + b
-#         return b
-
-# @app.delete("/intervals/{interval_id}")
-# async def delete_interval(interval_id: str):
-#     """Delete an interval"""
-#     if interval_id not in intervals_data:
-#         return {"error": "Interval not found"}
-        
-#     del intervals_data[interval_id]
-#     return {"message": f"Interval {interval_id} deleted successfully"}
