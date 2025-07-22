@@ -173,3 +173,25 @@ async def simple_trace(request: Request):
             web_trace.set_status_code(200)  # Mark the request as successful
             sdk.add_custom_request_attribute("endpoint", "/simple-trace")
             return {"message": "This is a single traced request!"}
+
+@app.get("/simple-trace2")
+async def simple_trace(request: Request):
+    # Initialize OneAgent SDK
+    if not oneagent.initialize():
+        return {"error": "OneAgent SDK not initialized"}
+
+    sdk = oneagent.get_sdk()
+    # Create your web request.
+    url = 'http://example.com'
+
+    req = Request(url)
+    req.add_header('header1', '1234')
+    req.add_header('header2', '5678')
+    tracer = sdk.trace_outgoing_web_request(url, req.get_method(), req.headers)
+    with tracer:
+            # Get and set the Dynatrace tag.
+            tag = tracer.outgoing_dynatrace_string_tag
+            req.add_header(DYNATRACE_HTTP_HEADER_NAME, tag)
+
+            # Here you process and send the web request.
+            response = _process_your_outgoing_request(req)
