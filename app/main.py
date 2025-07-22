@@ -5,10 +5,13 @@ from typing import Dict, List
 import platform
 import oneagent
 import oneagent.sdk as onesdk # All other SDK functions.
+from oneagent.common import AgentState
 import math
 
 # Detect Python implementation (eg. CPython)
 print(platform.python_implementation())
+
+sdk = oneagent.get_sdk()
 
 description = """
 Python Snek API helps you do awesome stuff. 🚀
@@ -48,6 +51,8 @@ async def initOneAgentSDK():
     if init_result:
         with oneagent.get_sdk().trace_incoming_remote_call('method', 'service', 'endpoint'):
             pass
+        if sdk.agent_state not in (AgentState.ACTIVE, AgentState.TEMPORARILY_INACTIVE):
+            print('Too bad, you will not see data from this process.')
         oneagent.shutdown()
         return 'SDK should work (but agent might be inactive).'
     else:
