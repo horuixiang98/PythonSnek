@@ -48,6 +48,7 @@ async def initOneAgentSDK():
     if init_result:
         with oneagent.get_sdk().trace_incoming_remote_call('method', 'service', 'endpoint'):
             pass
+        oneagent.shutdown()
         return 'SDK should work (but agent might be inactive).'
     else:
         return 'SDK will definitely not work (i.e. functions will be no-ops):', init_result
