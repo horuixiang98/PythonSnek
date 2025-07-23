@@ -16,4 +16,6 @@ services:
     command: >
       sh -c "uvicorn $$APP_MODULE --host 0.0.0.0 --port $$PORT --log-level $$LOG_LEVEL
       $([ "$$RELOAD" = "true" ] && echo "--reload")"
+    environment:
+      - LD_PRELOAD=/opt/dynatrace/oneagent/agent/lib64/liboneagentdynamizer.so
     network_mode: bridge
