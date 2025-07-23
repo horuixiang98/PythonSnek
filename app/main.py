@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 import oneagent
+from oneagent.common import AgentState
 import time
 
 app = FastAPI()
@@ -9,17 +10,22 @@ sdk = oneagent.get_sdk()
 @app.on_event("startup")
 async def startup_event():
     init_result = oneagent.initialize()
+    print('OneAgent SDK initialization result' + repr(init_result))
     if init_result:
-        print("Dynatrace OneAgent SDK not active!")
+        print('SDK should work (but agent might be inactive).')
     else:
-        print("Dynatrace OneAgent SDK is active")
+        print('SDK will definitely not work (i.e. functions will be no-ops):', init_result)
+
+
 
 # Middleware to trace all incoming requests
 @app.middleware("http")
 async def add_dynatrace_trace(request: Request, call_next):
+    if sdk.agent_state not in (AgentState.ACTIVE, AgentState.TEMPORARILY_INACTIVE):
+        print('Too bad, you will not see data from this process.')
     webapp_info = sdk.create_web_application_info(
         virtual_host=request.url.hostname,  # or your specific application name
-        application_id="my-fastapi-app",    # your application identifier
+        application_id="PythonSnekApp",    # your application identifier
         context_root="/"                    # base path of your application
     )
 
