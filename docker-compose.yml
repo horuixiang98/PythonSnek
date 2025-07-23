@@ -10,12 +10,10 @@ services:
       - APP_MODULE=app.main:app # Change this to your module path
       - PORT=80 # Changed internal port to 80
       - LOG_LEVEL=info
-      - RELOAD=${RELOAD:-false} # Set to true for development
+      - LD_PRELOAD=/opt/dynatrace/oneagent/agent/lib64/liboneagentdynamizer.so
     volumes:
       - .:/code
     command: >
       sh -c "uvicorn $$APP_MODULE --host 0.0.0.0 --port $$PORT --log-level $$LOG_LEVEL
       $([ "$$RELOAD" = "true" ] && echo "--reload")"
-    environment:
-      - LD_PRELOAD=/opt/dynatrace/oneagent/agent/lib64/liboneagentdynamizer.so
     network_mode: bridge
