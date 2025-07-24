@@ -11,18 +11,14 @@ sdk = oneagent.get_sdk()
 async def startup_event():
     init_result = oneagent.initialize()
     print('OneAgent SDK initialization result' + repr(init_result))
-    if init_result:
-        print('SDK should work (but agent might be inactive).')
-    else:
-        print('SDK will definitely not work (i.e. functions will be no-ops):', init_result)
+    with sdk.trace_custom_service('PythonSnekApp', 'PythonSnekService'):
+        print('do some fancy stuff')
 
 
 
 # Middleware to trace all incoming requests
 @app.middleware("http")
 async def add_dynatrace_trace(request: Request, call_next):
-    if sdk.agent_state not in (AgentState.ACTIVE, AgentState.TEMPORARILY_INACTIVE):
-        print('Too bad, you will not see data from this process.')
     webapp_info = sdk.create_web_application_info(
         virtual_host=request.url.hostname,  # or your specific application name
         application_id="PythonSnekApp",    # your application identifier
