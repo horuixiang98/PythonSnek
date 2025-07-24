@@ -1,4 +1,3 @@
-FastAPI
 datetime
 timedelta
 uvicorn
