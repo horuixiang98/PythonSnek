@@ -19,6 +19,8 @@ async def startup_event():
 # Middleware to trace all incoming requests
 @app.middleware("http")
 async def add_dynatrace_trace(request: Request, call_next):
+    init_result = oneagent.initialize()
+    print('OneAgent SDK initialization result' + repr(init_result))
     webapp_info = sdk.create_web_application_info(
         virtual_host=request.url.hostname,  # or your specific application name
         application_id="PythonSnekApp",    # your application identifier
