@@ -10,7 +10,7 @@ services:
       - DT_PYTHONPATH=/usr/local/bin/python3
       - DT_LOGGING_LEVEL=INFO
     ports:
-      - "8000:8000"
+      - "80:80"
     deploy:
       resources:
         limits:
@@ -18,5 +18,4 @@ services:
           memory: 1G
     command: >
       sh -c "uvicorn app.main:app
-      --host 0.0.0.0
       --proxy-headers"
