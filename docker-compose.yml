@@ -17,7 +17,7 @@ services:
           cpus: "2"
           memory: 1G
     command: >
-      sh -c "uvicorn main:app
+      sh -c "uvicorn app.main:app
       --host 0.0.0.0
       --port 8000
       --workers 4
