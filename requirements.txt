@@ -2,6 +2,6 @@ datetime
 timedelta
 uvicorn
 requests
-oneagent-sdk
+oneagent-sdk=1.5.1
 setuptools
 wheel
