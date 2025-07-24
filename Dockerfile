@@ -14,7 +14,6 @@ RUN pip install --upgrade pip && \
 COPY . .
 
 # Set Dynatrace environment variables
-ENV DT_ENABLEMULTIPROCESSINGINSTRUMENTATION=true
 ENV DT_PYTHONPATH=/usr/local/bin/python3
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
