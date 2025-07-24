@@ -62,8 +62,9 @@ async def read_item(item_id: int, request: Request):
 @app.get("/health")
 async def health_check():
     with sdk.trace_incoming_remote_call(
-        service_name="HealthCheck",
-        endpoint_name="/health"
+        method="GET",
+        name="HealthCheck",
+        endpoint="/health"
     ) as tracer:
         tracer.start()
         time.sleep(0.01)
