@@ -24,18 +24,12 @@ async def add_dynatrace_trace(request: Request, call_next):
         application_id="PythonSnekApp",    # your application identifier
         context_root="/"                    # base path of your application
     )
-
-    with sdk.trace_incoming_web_request(
+    with sdk.trace_incoming_remote_call(
         webapp_info=webapp_info,
         url=str(request.url),
         method=request.method,
-        headers=dict(request.headers)
     ) as tracer:
         tracer.start()
-        
-        # Add the tracer to the request state for use in endpoints
-        request.state.dynatrace_tracer = tracer
-        
         try:
             response = await call_next(request)
             tracer.set_status_code(response.status_code)
@@ -45,6 +39,26 @@ async def add_dynatrace_trace(request: Request, call_next):
             raise
         finally:
             tracer.end()
+    # with sdk.trace_incoming_web_request(
+    #     webapp_info=webapp_info,
+    #     url=str(request.url),
+    #     method=request.method,
+    #     headers=dict(request.headers)
+    # ) as tracer:
+    #     tracer.start()
+        
+    #     # Add the tracer to the request state for use in endpoints
+    #     request.state.dynatrace_tracer = tracer
+        
+    #     try:
+    #         response = await call_next(request)
+    #         tracer.set_status_code(response.status_code)
+    #         return response
+    #     except Exception as e:
+    #         tracer.error(str(e))
+    #         raise
+    #     finally:
+    #         tracer.end()
 
 # Example endpoint with custom tracing
 @app.get("/items/{item_id}")
