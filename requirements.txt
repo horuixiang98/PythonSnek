@@ -6,4 +6,3 @@ requests
 oneagent-sdk
 setuptools
 wheel
-math
