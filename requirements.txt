@@ -4,5 +4,6 @@ timedelta
 uvicorn
 requests
 oneagent-sdk
+dynatrace-oneagent
 setuptools
 wheel

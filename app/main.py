@@ -6,13 +6,9 @@ from dynatrace import Dynatrace
 
 app = FastAPI()
 sdk = oneagent.get_sdk()
-
-# Initialize Dynatrace
-dt = Dynatrace(
-    environment_id="rha75589",
-    application_id="PythonSnekApp",
-    enable_multiprocessing_instrumentation=True,
-    python_path="/usr/local/bin/python3"  # Path inside container
+dt = oneagent.SDK(
+    application_name="PythonSnekApp",
+    logging_level=SDK.LogLevel.INFO
 )
 
 # Check SDK status at startup
