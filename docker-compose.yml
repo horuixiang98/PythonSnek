@@ -18,4 +18,5 @@ services:
           memory: 1G
     command: >
       sh -c "uvicorn app.main:app
+      --port 80
       --proxy-headers"
