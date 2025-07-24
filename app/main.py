@@ -5,10 +5,6 @@ import time
 
 app = FastAPI()
 sdk = oneagent.get_sdk()
-dt = oneagent.SDK(
-    application_name="PythonSnekApp",
-    logging_level=SDK.LogLevel.INFO
-)
 
 # Check SDK status at startup
 @app.on_event("startup")
