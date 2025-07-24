@@ -2,7 +2,6 @@ from fastapi import FastAPI, Request
 import oneagent
 from oneagent.common import AgentState
 import time
-from dynatrace import Dynatrace
 
 app = FastAPI()
 sdk = oneagent.get_sdk()
