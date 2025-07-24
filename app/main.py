@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+import FastAPI, Request
 import oneagent
 from oneagent.common import AgentState
 import time
