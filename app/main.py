@@ -66,6 +66,7 @@ async def health_check():
         name="HealthCheck",
         endpoint="/health"
     ) as tracer:
+        print(tracer)
         tracer.start()
         time.sleep(0.01)
         tracer.end()    
