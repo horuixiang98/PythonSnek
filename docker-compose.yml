@@ -10,7 +10,7 @@ services:
       - APP_MODULE=app.main:app # Change this to your module path
       - PORT=80 # Changed internal port to 80
       - LOG_LEVEL=info
-      - LD_PRELOAD=/opt/dynatrace/oneagent/agent/lib64/liboneagentdynamizer.so
+      - RELOAD=${RELOAD:-false} # Set to true for development
     volumes:
       - .:/code
     command: >
