@@ -2,9 +2,18 @@ from fastapi import FastAPI, Request
 import oneagent
 from oneagent.common import AgentState
 import time
+from dynatrace import Dynatrace
 
 app = FastAPI()
 sdk = oneagent.get_sdk()
+
+# Initialize Dynatrace
+dt = Dynatrace(
+    environment_id="rha75589",
+    application_id="PythonSnekApp",
+    enable_multiprocessing_instrumentation=True,
+    python_path="/usr/local/bin/python3"  # Path inside container
+)
 
 # Check SDK status at startup
 @app.on_event("startup")
