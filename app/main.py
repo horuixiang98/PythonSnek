@@ -143,3 +143,30 @@ def mock_process_incoming_message():
                     tinfo.trace_id, tinfo.span_id))
 
                 tracer.set_correlation_id('correlation_id')
+
+
+
+@app.get("/mock_outgoing_web_request")
+def mock_outgoing_web_request():
+    sdk = getsdk()
+
+    # Create tracer and and request headers.
+    tracer = sdk.trace_outgoing_web_request('http://example.com/their-web-app/bar?foo=foz', 'GET',
+                                            headers={'X-not-a-useful-header': 'python-was-here'})
+
+    with tracer:
+        # Now get the outgoing dynatrace tag. You have to add this tag as request header to your
+        # request if you want that the path is continued on the receiving site. Use the constant
+        # oneagent.common.DYNATRACE_HTTP_HEADER_NAME as request header name.
+        tag = tracer.outgoing_dynatrace_string_tag
+
+        # Here you process and send your web request.
+        _process_my_outgoing_request(tag)
+
+        # As soon as the response is received, you can add the response headers to the
+        # tracer and you shouldn't forget to set the status code, too.
+        tracer.add_response_headers({'Content-Length': '1234'})
+        tracer.set_status_code(200) # OK
+
+def _process_my_outgoing_request(_tag):
+    pass
