@@ -86,7 +86,7 @@ def mock_incoming_web_request():
     with wappinfo:
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
-            'http://example.com/my-web-app/foo?bar=baz',
+            'http://example.com/python-snek-app/snek?=baz',
             'GET',
             headers={'Host': 'example.com', 'X-foo': 'bar'},
             remote_address='127.0.0.1:12345')
@@ -110,7 +110,7 @@ def mock_process_incoming_message():
 
     # Create the messaging system info object.
     msi_handle = sdk.create_messaging_system_info(
-        'MyPythonSenderVendor', 'MyPythonDestination', MessagingDestinationType.QUEUE,
+        'PythonSenderVendor', 'PythonDestination', MessagingDestinationType.QUEUE,
         onesdk.Channel(onesdk.ChannelType.UNIX_DOMAIN_SOCKET, 'MyPythonChannelEndpoint'))
 
     with msi_handle:
@@ -141,7 +141,7 @@ def mock_outgoing_web_request():
     sdk = getsdk()
 
     # Create tracer and and request headers.
-    tracer = sdk.trace_outgoing_web_request('http://example.com/their-web-app/bar?foo=foz', 'GET',
+    tracer = sdk.trace_outgoing_web_request('http://example.com/python-snek-app/snek?=foz', 'GET',
                                             headers={'X-not-a-useful-header': 'python-was-here'})
 
     with tracer:
