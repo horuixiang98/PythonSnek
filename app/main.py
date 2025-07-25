@@ -159,6 +159,7 @@ def mock_outgoing_web_request():
         tracer.set_status_code(200) # OK
         outgoing_remote_call(success=True)
         outgoing_remote_call(success=True)
+        outgoing_remote_call(success=False)
 
 def _process_my_outgoing_request(_tag):
     pass
@@ -197,9 +198,9 @@ def do_remote_call_thread_func(strtag, success):
         # We use positional arguments to specify required values and named
         # arguments to specify optional values.
         incall = getsdk().trace_incoming_remote_call(
-            'dummyPyMethod', 'DummyPyService',
-            'dupypr://localhost/dummyEndpoint',
-            protocol_name='DUMMY_PY_PROTOCOL', str_tag=strtag)
+            'GetUserMethod', 'GetUserService',
+            'dupypr://localhost/getUserEndpoint',
+            protocol_name='USER_PY_PROTOCOL', str_tag=strtag)
         with incall:
             if not success:
                 raise RuntimeError('Remote call failed on the server side.')
