@@ -96,9 +96,9 @@ def mock_incoming_web_request(request: Request):
         # IncomingWebRequestTracer.
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
-            'http://example.com/my-web-app/foo?bar=baz',
-            'GET',
-            headers={'Host': 'example.com', 'X-foo': 'bar'},
+            url= request.url,
+            method=request.method,
+            headers=dict(request.headers)
             remote_address='127.0.0.1:12345')
         with wreq:
             wreq.add_parameter('my_form_field', '1234')
