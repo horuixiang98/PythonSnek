@@ -83,22 +83,11 @@ def mock_incoming_web_request(request: Request):
         context_root='/python-web-app/') # App's prefix of the path part of the URL.
 
     with wappinfo:
-        # This with-block will automatically free web application info handle
-        # at the end. Note that the handle can be used for multiple tracers. In
-        # general, it is recommended to reuse web application info handles as
-        # often as possible (for efficiency reasons). For example, if you use
-        # WSGI, the web application info could be stored as an attribute of the
-        # application object.
-        #
-        # Note that different ways to specify headers, response headers and
-        # parameter (form fields) not shown here also exist. Consult the
-        # documentation for trace_incoming_web_request and
-        # IncomingWebRequestTracer.
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
-            url= str(request.url),
-            method=str(request.method),
-            headers=dict(request.headers),
+            'http://example.com/my-web-app/foo?bar=baz',
+            'GET',
+            headers={'Host': 'example.com', 'X-foo': 'bar'},
             remote_address='127.0.0.1:12345')
         with wreq:
             wreq.add_parameter('my_form_field', '1234')
@@ -170,3 +159,9 @@ def mock_outgoing_web_request():
 
 def _process_my_outgoing_request(_tag):
     pass
+
+
+@app.get("/mock_incoming_outgoing_web_request")
+def mock_incoming_outgoing_web_request():
+    mock_incoming_web_request()
+    mock_outgoing_web_request()
