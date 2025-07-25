@@ -96,8 +96,8 @@ def mock_incoming_web_request(request: Request):
         # IncomingWebRequestTracer.
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
-            url= request.url,
-            method=request.method,
+            url= str(request.url),
+            method=str(request.method),
             headers=dict(request.headers),
             remote_address='127.0.0.1:12345')
         with wreq:
