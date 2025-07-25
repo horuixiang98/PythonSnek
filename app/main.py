@@ -5,7 +5,8 @@ from oneagent.common import AgentState
 import time
 
 app = FastAPI()
-sdk = oneagent.get_sdk
+sdk = oneagent.get_sdk()
+getsdk = oneagent.get_sdk
 
 # Check SDK status at startup
 @app.on_event("startup")
@@ -76,12 +77,12 @@ async def health_check():
         tracer.end()    
         return {"status": "healthy"}
 
-
 @app.get("/mock_incoming_web_request")
 def mock_incoming_web_request():
+    sdk = getsdk()
     wappinfo = sdk.create_web_application_info(
-        virtual_host='example.com', # Logical name of the host server.
-        application_id='MyWebApplication', # Unique web application ID.
+        virtual_host='PythonSnekApp.com', # Logical name of the host server.
+        application_id='PythonSnekApp', # Unique web application ID.
         context_root='/my-web-app/') # App's prefix of the path part of the URL.
 
     with wappinfo:
@@ -117,4 +118,4 @@ def mock_incoming_web_request():
             sdk.add_custom_request_attribute('another key', None)
 
             # This call simulates incoming messages.
-            mock_process_incoming_message()
+            # mock_process_incoming_message()
