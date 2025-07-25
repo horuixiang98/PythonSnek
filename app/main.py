@@ -98,7 +98,7 @@ def mock_incoming_web_request(request: Request):
             wappinfo,
             url= request.url,
             method=request.method,
-            headers=dict(request.headers)
+            headers=dict(request.headers),
             remote_address='127.0.0.1:12345')
         with wreq:
             wreq.add_parameter('my_form_field', '1234')
