@@ -75,7 +75,7 @@ async def health_check():
         return {"status": "healthy"}
 
 @app.get("/mock_incoming_web_request")
-def mock_incoming_web_request(request: Request):
+def mock_incoming_web_request():
     sdk = getsdk()
     wappinfo = sdk.create_web_application_info(
         virtual_host='snek.com', # Logical name of the host server.
