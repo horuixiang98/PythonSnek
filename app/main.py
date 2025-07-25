@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 import oneagent
-from oneagent.common import AgentState
+import oneagent.sdk as onesdk # All other SDK functions
+from oneagent.common import MessagingDestinationType
 import time
 
 app = FastAPI()
@@ -74,12 +75,12 @@ async def health_check():
         return {"status": "healthy"}
 
 @app.get("/mock_incoming_web_request")
-def mock_incoming_web_request():
+def mock_incoming_web_request(request: Request):
     sdk = getsdk()
     wappinfo = sdk.create_web_application_info(
-        virtual_host='example.com', # Logical name of the host server.
-        application_id='MyWebApplication', # Unique web application ID.
-        context_root='/my-web-app/') # App's prefix of the path part of the URL.
+        virtual_host='snek.com', # Logical name of the host server.
+        application_id='PythonSnekApp', # Unique web application ID.
+        context_root='/python-web-app/') # App's prefix of the path part of the URL.
 
     with wappinfo:
         # This with-block will automatically free web application info handle
@@ -95,8 +96,8 @@ def mock_incoming_web_request():
         # IncomingWebRequestTracer.
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
-            'http://example.com/my-web-app/foo?bar=baz',
-            'GET',
+            request.url,
+            request.method,
             headers={'Host': 'example.com', 'X-foo': 'bar'},
             remote_address='127.0.0.1:12345')
         with wreq:
@@ -112,3 +113,33 @@ def mock_incoming_web_request():
 
             # This call will trigger the diagnostic callback.
             sdk.add_custom_request_attribute('another key', None)
+            mock_process_incoming_message()
+
+def mock_process_incoming_message():
+    sdk = getsdk()
+
+    # Create the messaging system info object.
+    msi_handle = sdk.create_messaging_system_info(
+        'MyPythonSenderVendor', 'MyPythonDestination', MessagingDestinationType.QUEUE,
+        onesdk.Channel(onesdk.ChannelType.UNIX_DOMAIN_SOCKET, 'MyPythonChannelEndpoint'))
+
+    with msi_handle:
+        # Create the receive tracer for incoming messages.
+        with sdk.trace_incoming_message_receive(msi_handle):
+            print('here we wait for incoming messages ...')
+
+            # Create the tracer for processing incoming messages.
+            tracer = sdk.trace_incoming_message_process(msi_handle)
+
+            # Now we can set the vendor message and correlation IDs. It's possible to set them
+            # either before the tracer is started or afterwards. But they have to be set before
+            # the tracer ends.
+            tracer.set_vendor_message_id('message_id')
+            with tracer:
+
+                # Use tracecontext_get_current to log a trace/span ID identifiying the current node.
+                tinfo = sdk.tracecontext_get_current()
+                print('[!dt dt.trace_id={},dt.span_id={}] handle incoming message'.format(
+                    tinfo.trace_id, tinfo.span_id))
+
+                tracer.set_correlation_id('correlation_id')
