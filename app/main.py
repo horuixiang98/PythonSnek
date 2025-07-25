@@ -156,6 +156,9 @@ def mock_outgoing_web_request():
         # tracer and you shouldn't forget to set the status code, too.
         tracer.add_response_headers({'Content-Length': '1234'})
         tracer.set_status_code(200) # OK
+        outgoing_remote_call(success=True)
+        outgoing_remote_call(success=True)
+        outgoing_remote_call(success=False)
 
 def _process_my_outgoing_request(_tag):
     pass
@@ -165,3 +168,101 @@ def _process_my_outgoing_request(_tag):
 def mock_incoming_outgoing_web_request():
     mock_incoming_web_request()
     mock_outgoing_web_request()
+
+
+
+# DB tracing example
+
+def traced_db_operation(dbinfo, sql):
+    print('+db', dbinfo, sql)
+
+    # Entering the with block automatically start the tracer.
+    with getsdk().trace_sql_database_request(dbinfo, sql) as tracer:
+
+        # In real-world code, you would do the actual database operation here,
+        # i.e. call the database's API.
+
+        # Set an optional "exit"-field on the tracer. Whenever there is a
+        # setter available on a tracer (as opposed to an optional parameter to a
+        # trace_* function), it may be called anytime between creating and
+        # ending the tracer (i.e. also after starting it).
+        tracer.set_round_trip_count(3)
+
+    print('-db', dbinfo, sql)
+
+
+def do_remote_call_thread_func(strtag, success):
+    try:
+        print('+thread')
+        # We use positional arguments to specify required values and named
+        # arguments to specify optional values.
+        incall = getsdk().trace_incoming_remote_call(
+            'dummyPyMethod', 'DummyPyService',
+            'dupypr://localhost/dummyEndpoint',
+            protocol_name='DUMMY_PY_PROTOCOL', str_tag=strtag)
+        with incall:
+            if not success:
+                raise RuntimeError('Remote call failed on the server side.')
+            dbinfo = getsdk().create_database_info(
+                'Northwind', onesdk.DatabaseVendor.SQLSERVER,
+                onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
+
+            # This with-block will automatically free the database info handle
+            # at the end. Note that the handle is used for multiple tracers. In
+            # general, it is recommended to reuse database (and web application)
+            # info handles as often as possible (for efficiency reasons).
+            with dbinfo:
+                traced_db_operation(
+                    dbinfo, "BEGIN TRAN;")
+                traced_db_operation(
+                    dbinfo,
+                    "SELECT TOP 1 qux FROM baz ORDER BY quux;")
+                traced_db_operation(
+                    dbinfo,
+                    "SELECT foo, bar FROM baz WHERE qux = 23")
+                traced_db_operation(
+                    dbinfo,
+                    "UPDATE baz SET foo = foo + 1 WHERE qux = 23;")
+                traced_db_operation(dbinfo, "COMMIT;")
+        print('-thread')
+    except Exception as e:
+        failed[0] = e
+        raise
+
+def do_remote_call(strtag, success):
+    # This function simulates doing a remote call by calling a function
+    # do_remote_call_thread_func in another thread, passing a string tag. See
+    # the documentation on tagging for more information.
+
+    failed[0] = None
+    workerthread = threading.Thread(
+        target=do_remote_call_thread_func,
+        args=(strtag, success))
+    workerthread.start()
+
+    # Note that we need to join the thread, as all tagging assumes synchronous
+    # calls.
+    workerthread.join()
+
+    if failed[0] is not None:
+        raise failed[0] #pylint:disable=raising-bad-type
+
+
+def outgoing_remote_call(success):
+    print('+remote')
+    # We use positional arguments to specify required values and named arguments
+    # to specify optional values.
+    call = getsdk().trace_outgoing_remote_call(
+        'dummyPyMethod', 'DummyPyService', 'dupypr://localhost/dummyEndpoint',
+        onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
+        protocol_name='DUMMY_PY_PROTOCOL')
+    try:
+        with call:
+            # Note that this property can only be accessed after starting the
+            # tracer. See the documentation on tagging for more information.
+            strtag = call.outgoing_dynatrace_string_tag
+            do_remote_call(strtag, success)
+    except RuntimeError: # Swallow the exception raised above.
+        pass
+    print('-remote')
+failed = [None]
