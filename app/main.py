@@ -17,35 +17,35 @@ async def startup_event():
         print('do some fancy stuff')
 
 # Middleware to trace all incoming requests
-@app.middleware("http")
-async def add_dynatrace_trace(request: Request, call_next):
-    init_result = oneagent.initialize()
-    print('OneAgent SDK initialization result' + repr(init_result))
-    webapp_info = sdk.create_web_application_info(
-        virtual_host=request.url.hostname,  # or your specific application name
-        application_id="PythonSnekApp",    # your application identifier
-        context_root="/"                    # base path of your application
-    )
-    with sdk.trace_incoming_web_request(
-        webapp_info=webapp_info,
-        url=str(request.url),
-        method=request.method,
-        headers=dict(request.headers)
-    ) as tracer:
-        tracer.start()
+# @app.middleware("http")
+# async def add_dynatrace_trace(request: Request, call_next):
+#     init_result = oneagent.initialize()
+#     print('OneAgent SDK initialization result' + repr(init_result))
+#     webapp_info = sdk.create_web_application_info(
+#         virtual_host=request.url.hostname,  # or your specific application name
+#         application_id="PythonSnekApp",    # your application identifier
+#         context_root="/"                    # base path of your application
+#     )
+#     with sdk.trace_incoming_web_request(
+#         webapp_info=webapp_info,
+#         url=str(request.url),
+#         method=request.method,
+#         headers=dict(request.headers)
+#     ) as tracer:
+#         tracer.start()
         
-        # Add the tracer to the request state for use in endpoints
-        request.state.dynatrace_tracer = tracer
+#         # Add the tracer to the request state for use in endpoints
+#         request.state.dynatrace_tracer = tracer
         
-        try:
-            response = await call_next(request)
-            tracer.set_status_code(response.status_code)
-            return response
-        except Exception as e:
-            tracer.error(str(e))
-            raise
-        finally:
-            tracer.end()
+#         try:
+#             response = await call_next(request)
+#             tracer.set_status_code(response.status_code)
+#             return response
+#         except Exception as e:
+#             tracer.error(str(e))
+#             raise
+#         finally:
+#             tracer.end()
 
 # Example endpoint with custom tracing
 @app.get("/items/{item_id}")
