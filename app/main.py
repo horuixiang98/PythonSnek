@@ -169,7 +169,7 @@ def mock_outgoing_web_request():
         }
         try:
             response = requests.post('http://localhost:8000/mock_incoming_web_request', data=payload)
-            print("payload: ", link)
+            print("payload: ", str(link))
             if response.status_code == 200:
                 print("Successfully called mock_incoming_web_request")
             else:
