@@ -22,7 +22,7 @@ async def startup_event():
 @app.post("/mock_incoming_web_request")
 def mock_incoming_web_request(link: Annotated[bytes, Form()]):
     sdk = getsdk()
-    sdk.trace_in_process_link(link)
+    # sdk.trace_in_process_link(link)
     wappinfo = sdk.create_web_application_info(
         virtual_host='snek.com', # Logical name of the host server.
         application_id='PythonSnekApp', # Unique web application ID.
