@@ -4,6 +4,7 @@ import oneagent.sdk as onesdk # All other SDK functions
 from oneagent.common import MessagingDestinationType
 import time
 import threading
+from typing import Annotated
 
 app = FastAPI()
 sdk = oneagent.get_sdk()
