@@ -300,7 +300,7 @@ def test_out():
         return strtag
 
 @app.get("/test_in")
-def test_in(trace_id: string):
+def test_in(trace_id: str):
     incall = sdk.trace_incoming_remote_call(
     'remoteMethodToCall', 'RemoteServiceName', 'rmi://Endpoint/service',
     protocol_name='RMI/custom',
