@@ -76,8 +76,9 @@ async def health_check():
         return {"status": "healthy"}
 
 @app.get("/mock_incoming_web_request")
-def mock_incoming_web_request():
+def mock_incoming_web_request(link):
     sdk = getsdk()
+    sdk.trace_in_process_link(link)
     wappinfo = sdk.create_web_application_info(
         virtual_host='snek.com', # Logical name of the host server.
         application_id='PythonSnekApp', # Unique web application ID.
@@ -86,9 +87,9 @@ def mock_incoming_web_request():
     with wappinfo:
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
-            'http://app1.com/python-snek-app/snek?=baz',
+            'http://example.com/python-snek-app/snek?=baz',
             'GET',
-            headers={'Host': 'app1.com', 'X-foo': 'bar'},
+            headers={'Host': 'example.com', 'X-foo': 'bar'},
             remote_address='127.0.0.1:12345')
         with wreq:
             wreq.add_parameter('my_form_field', '1234')
@@ -132,7 +133,7 @@ def mock_process_incoming_message():
                 print('[!dt dt.trace_id={},dt.span_id={}] handle incoming message'.format(
                     tinfo.trace_id, tinfo.span_id))
 
-                tracer.set_correlation_id('1000583')
+                tracer.set_correlation_id('correlation_id')
 
 
 
@@ -149,7 +150,6 @@ def mock_outgoing_web_request():
         # request if you want that the path is continued on the receiving site. Use the constant
         # oneagent.common.DYNATRACE_HTTP_HEADER_NAME as request header name.
         tag = tracer.outgoing_dynatrace_string_tag
-        print("tag", tag)
 
         # Here you process and send your web request.
         _process_my_outgoing_request(tag)
@@ -162,15 +162,18 @@ def mock_outgoing_web_request():
         outgoing_remote_call(success=True)
         outgoing_remote_call(success=False)
 
+        link = sdk.create_in_process_link()
+        mock_incoming_web_request(link)
+
 def _process_my_outgoing_request(_tag):
     pass
 
 
 @app.get("/mock_incoming_outgoing_web_request")
 def mock_incoming_outgoing_web_request():
-    mock_incoming_web_request()
     mock_outgoing_web_request()
-    mock_outgoing_message()
+    # mock_incoming_web_request()
+    
 
 
 def mock_outgoing_message():
@@ -186,7 +189,7 @@ def mock_outgoing_message():
         with sdk.trace_outgoing_message(msi_handle) as tracer:
             # Set the message and correlation IDs.
             tracer.set_vendor_message_id('msgId')
-            tracer.set_correlation_id('1000583')
+            tracer.set_correlation_id('corrId')
 
             print('handle outgoing message')
 
