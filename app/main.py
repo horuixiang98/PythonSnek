@@ -132,7 +132,7 @@ def mock_process_incoming_message():
                 print('[!dt dt.trace_id={},dt.span_id={}] handle incoming message'.format(
                     tinfo.trace_id, tinfo.span_id))
 
-                tracer.set_correlation_id('correlation_id')
+                tracer.set_correlation_id('1000583')
 
 
 
@@ -169,7 +169,25 @@ def _process_my_outgoing_request(_tag):
 def mock_incoming_outgoing_web_request():
     mock_incoming_web_request()
     mock_outgoing_web_request()
+    mock_outgoing_message()
 
+
+def mock_outgoing_message():
+    sdk = getsdk()
+
+    # Create the messaging system info object.
+    msi_handle = sdk.create_messaging_system_info(
+        'MyPythonReceiverVendor', 'MyPythonDestination', MessagingDestinationType.TOPIC,
+        onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.11.12.13:1415'))
+
+    with msi_handle:
+        # Create the outgoing message tracer;
+        with sdk.trace_outgoing_message(msi_handle) as tracer:
+            # Set the message and correlation IDs.
+            tracer.set_vendor_message_id('msgId')
+            tracer.set_correlation_id('1000583')
+
+            print('handle outgoing message')
 
 
 # DB tracing example
