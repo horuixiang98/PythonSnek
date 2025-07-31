@@ -34,7 +34,7 @@ def mock_incoming_web_request(link: Annotated[str, Form()]):
             'http://example.com/python-snek-app/snek?=baz',
             'POST',
             headers={'Host': 'example.com', 'X-foo': 'bar'},
-            remote_address='127.0.0.1:12345')
+            remote_address=('127.0.0.1', 12345))  # Changed to tuple with IP and port
         with wreq:
             wreq.add_parameter('my_form_field', '1234')
             # Process web request
@@ -49,7 +49,6 @@ def mock_incoming_web_request(link: Annotated[str, Form()]):
             # This call will trigger the diagnostic callback.
             sdk.add_custom_request_attribute('another key', None)
             mock_process_incoming_message()
-
 def mock_process_incoming_message():
     sdk = getsdk()
 
