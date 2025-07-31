@@ -86,9 +86,9 @@ def mock_incoming_web_request():
     with wappinfo:
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
-            'http://example.com/python-snek-app/snek?=baz',
+            'http://app1.com/python-snek-app/snek?=baz',
             'GET',
-            headers={'Host': 'example.com', 'X-foo': 'bar'},
+            headers={'Host': 'app1.com', 'X-foo': 'bar'},
             remote_address='127.0.0.1:12345')
         with wreq:
             wreq.add_parameter('my_form_field', '1234')
@@ -151,7 +151,8 @@ def mock_outgoing_web_request():
         tag = tracer.outgoing_dynatrace_string_tag
 
         # Here you process and send your web request.
-        _process_my_outgoing_request(tag)
+        _process_my_outgoing_req
+        uest(tag)
 
         # As soon as the response is received, you can add the response headers to the
         # tracer and you shouldn't forget to set the status code, too.
@@ -285,3 +286,25 @@ def outgoing_remote_call(success):
         pass
     print('-remote')
 failed = [None]
+
+@app.get("/test_out")
+def test_out():
+    outcall = sdk.trace_outgoing_remote_call(
+    'remoteMethodToCall', 'RemoteServiceName', 'rmi://Endpoint/service',
+    oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, 'remoteHost:1234'),
+    protocol_name='RMI/custom')
+    with outcall:
+        # Note: You can access outgoing_dynatrace_*_tag only after the trace
+        # has started!
+        strtag = outcall.outgoing_dynatrace_string_tag
+        return strtag
+
+@app.get("/test_in")
+def test_in(trace_id: string):
+    incall = sdk.trace_incoming_remote_call(
+    'remoteMethodToCall', 'RemoteServiceName', 'rmi://Endpoint/service',
+    protocol_name='RMI/custom',
+    str_tag=trace_id)
+    return str_tag
+    with incall:
+        pass # Here you would do the actual work that is timed
