@@ -297,6 +297,7 @@ def test_out():
         # Note: You can access outgoing_dynatrace_*_tag only after the trace
         # has started!
         strtag = outcall.outgoing_dynatrace_string_tag
+        test_in(strtag)
         return strtag
 
 @app.get("/test_in")
@@ -305,6 +306,6 @@ def test_in(trace_id: str):
     'remoteMethodToCall', 'RemoteServiceName', 'rmi://Endpoint/service',
     protocol_name='RMI/custom',
     str_tag=trace_id)
-    return str_tag
+    return trace_id
     with incall:
         pass # Here you would do the actual work that is timed
