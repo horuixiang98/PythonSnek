@@ -149,10 +149,10 @@ def mock_outgoing_web_request():
         # request if you want that the path is continued on the receiving site. Use the constant
         # oneagent.common.DYNATRACE_HTTP_HEADER_NAME as request header name.
         tag = tracer.outgoing_dynatrace_string_tag
+        print("tag", tag)
 
         # Here you process and send your web request.
-        _process_my_outgoing_req
-        uest(tag)
+        _process_my_outgoing_request(tag)
 
         # As soon as the response is received, you can add the response headers to the
         # tracer and you shouldn't forget to set the status code, too.
@@ -286,28 +286,3 @@ def outgoing_remote_call(success):
         pass
     print('-remote')
 failed = [None]
-
-@app.get("/test_out")
-def test_out():
-    outcall = sdk.trace_outgoing_remote_call(
-    'remoteMethodToCall', 'RemoteServiceName', 'rmi://Endpoint/service',
-    oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, 'remoteHost:1234'),
-    protocol_name='RMI/custom')
-    with outcall:
-        # Note: You can access outgoing_dynatrace_*_tag only after the trace
-        # has started!
-        strtag = outcall.outgoing_dynatrace_string_tag
-        print('strtag :', strtag)
-        test_in(strtag)
-        return strtag
-
-@app.get("/test_in")
-def test_in(trace_id: str):
-    incall = sdk.trace_incoming_remote_call(
-    'remoteMethodToCall', 'RemoteServiceName', 'rmi://Endpoint/service',
-    protocol_name='RMI/custom',
-    str_tag=trace_id)
-    print('test_in_strtag :' , trace_id)
-    return trace_id
-    with incall:
-        pass # Here you would do the actual work that is timed
