@@ -4,6 +4,7 @@ import oneagent.sdk as onesdk # All other SDK functions
 from oneagent.common import MessagingDestinationType
 import time
 import threading
+import requests
 
 app = FastAPI()
 sdk = oneagent.get_sdk()
@@ -159,11 +160,19 @@ def mock_outgoing_web_request():
         tracer.add_response_headers({'Content-Length': '1234'})
         tracer.set_status_code(200) # OK
         outgoing_remote_call(success=True)
-        outgoing_remote_call(success=True)
+        # outgoing_remote_call(success=True)
         outgoing_remote_call(success=False)
 
         link = sdk.create_in_process_link()
-        mock_incoming_web_request(link)
+        try:
+            response = requests.get(f'http://localhost:8000/mock_incoming_web_request?link={link}')
+            if response.status_code == 200:
+                print("Successfully called mock_incoming_web_request")
+            else:
+                print(f"Failed to call mock_incoming_web_request: {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error making request: {e}")
+        # mock_incoming_web_request(link)
 
 def _process_my_outgoing_request(_tag):
     pass
