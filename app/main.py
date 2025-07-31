@@ -162,7 +162,7 @@ def mock_outgoing_web_request():
         outgoing_remote_call(success=True)
         rcall = outgoing_remote_call(success=True)
         # outgoing_remote_call(success=False)
-        with rcall :
+        with rcall:
             link = sdk.create_in_process_link()
             payload = {
                 "link": link,
