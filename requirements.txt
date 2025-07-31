@@ -6,3 +6,4 @@ requests
 oneagent-sdk
 setuptools
 wheel
+python-multipart

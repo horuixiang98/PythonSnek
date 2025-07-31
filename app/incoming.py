@@ -20,7 +20,7 @@ async def startup_event():
 
 
 @app.post("/mock_incoming_web_request")
-def mock_incoming_web_request(link: Annotated[str, Form()],):
+def mock_incoming_web_request(link: Annotated[str, Form()]):
     sdk = getsdk()
     sdk.trace_in_process_link(link)
     wappinfo = sdk.create_web_application_info(
