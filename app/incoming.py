@@ -18,8 +18,8 @@ async def startup_event():
         print('do some fancy stuff')
 
 
-@app.get("/mock_incoming_web_request")
-def mock_incoming_web_request(link):
+@app.post("/mock_incoming_web_request")
+def mock_incoming_web_request(link: str):
     sdk = getsdk()
     sdk.trace_in_process_link(link)
     wappinfo = sdk.create_web_application_info(
@@ -31,7 +31,7 @@ def mock_incoming_web_request(link):
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
             'http://example.com/python-snek-app/snek?=baz',
-            'GET',
+            'POST',
             headers={'Host': 'example.com', 'X-foo': 'bar'},
             remote_address='127.0.0.1:12345')
         with wreq:
