@@ -164,8 +164,11 @@ def mock_outgoing_web_request():
         outgoing_remote_call(success=False)
 
         link = sdk.create_in_process_link()
+        payload = {
+            "link": link,
+        }
         try:
-            response = requests.post('http://localhost:8000/mock_incoming_web_request', link=link)
+            response = requests.post('http://localhost:8000/mock_incoming_web_request', payload=payload)
             if response.status_code == 200:
                 print("Successfully called mock_incoming_web_request")
             else:
