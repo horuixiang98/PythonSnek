@@ -160,22 +160,22 @@ def mock_outgoing_web_request():
         tracer.add_response_headers({'Content-Length': '1234'})
         tracer.set_status_code(200) # OK
         outgoing_remote_call(success=True)
-        # outgoing_remote_call(success=True)
-        outgoing_remote_call(success=False)
-
-        link = sdk.create_in_process_link()
-        payload = {
-            "link": link,
-        }
-        try:
-            response = requests.post('http://localhost:8000/mock_incoming_web_request', data=payload)
-            if response.status_code == 200:
-                print("Successfully called mock_incoming_web_request")
-            else:
-                print(f"Failed to call mock_incoming_web_request: {response.status_code}")
-        except requests.exceptions.RequestException as e:
-            print(f"Error making request: {e}")
-        # mock_incoming_web_request(link)
+        rcall = outgoing_remote_call(success=True)
+        # outgoing_remote_call(success=False)
+        with rcall :
+            link = sdk.create_in_process_link()
+            payload = {
+                "link": link,
+            }
+            try:
+                response = requests.post('http://localhost:8000/mock_incoming_web_request', data=payload)
+                if response.status_code == 200:
+                    print("Successfully called mock_incoming_web_request")
+                else:
+                    print(f"Failed to call mock_incoming_web_request: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                print(f"Error making request: {e}")
+            # mock_incoming_web_request(link)
 
 def _process_my_outgoing_request(_tag):
     pass
