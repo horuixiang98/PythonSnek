@@ -22,7 +22,6 @@ async def startup_event():
 @app.post("/mock_incoming_web_request")
 def mock_incoming_web_request(link: Annotated[bytes, Form()]):
     sdk = getsdk()
-    sdk.trace_in_process_link(link)
     print("payload2: ", str(link))
     print("sdk", str(sdk))
     wappinfo = sdk.create_web_application_info(
@@ -36,7 +35,8 @@ def mock_incoming_web_request(link: Annotated[bytes, Form()]):
             'http://example.com/python-snek-app/snek?=baz',
             'POST',
             headers={'Host': 'example.com', 'X-foo': 'bar'},
-            remote_address='127.0.0.1:12345')
+            remote_address='127.0.0.1:12345',
+            str_tag=link)
         with wreq:
             wreq.add_parameter('my_form_field', '1234')
             # Process web request
