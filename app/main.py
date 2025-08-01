@@ -163,9 +163,7 @@ def mock_outgoing_web_request(request: Request):
         rcall = outgoing_remote_call(success=True)
         # outgoing_remote_call(success=False)
         try:
-            
             response = requests.post('http://localhost:8000/mock_incoming_web_request')
-            print("payload: ", str(link))
             if response.status_code == 200:
                 print("Successfully called mock_incoming_web_request")
             else:
