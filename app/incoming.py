@@ -20,39 +20,35 @@ async def startup_event():
 
 
 @app.post("/mock_incoming_web_request")
-def mock_incoming_web_request(link: Annotated[bytes, Form()]):
+def mock_incoming_web_request(request: Request):
     sdk = getsdk()
-    print("payload2: ", str(link))
-    print("sdk", str(sdk))
-    wappinfo = sdk.create_web_application_info(
-        virtual_host='snek.com', # Logical name of the host server.
-        application_id='PythonSnekApp', # Unique web application ID.
-        context_root='/python-web-app/') # App's prefix of the path part of the URL.
+    headers = dict(request.headers)
+    # wappinfo = sdk.create_web_application_info(
+    #     virtual_host='snek.com', # Logical name of the host server.
+    #     application_id='PythonSnekApp', # Unique web application ID.
+    #     context_root='/python-web-app/') # App's prefix of the path part of the URL.
 
-    with wappinfo:
-        wreq = sdk.trace_incoming_web_request(
-            wappinfo,
-            'http://example.com/python-snek-app/snek?=baz',
-            'POST',
-            headers={'Host': 'example.com', 'X-foo': 'bar'},
-            remote_address='127.0.0.1:12345',
-            str_tag=link)
-        with wreq:
-            wreq.add_parameter('my_form_field', '1234')
-            # Process web request
-            wreq.add_response_headers({'Content-Length': '1234'})
-            wreq.set_status_code(200) # OK
+    # with wappinfo:
+    wreq = sdk.trace_incoming_web_request(
+        url=str(request.url),
+        method=request.method,
+        headers=headers)
+    with wreq:
+        wreq.add_parameter('my_form_field', '1234')
+        # Process web request
+        wreq.add_response_headers({'Content-Length': '1234'})
+        wreq.set_status_code(200) # OK
 
-            # Add 3 different custom attributes.
-            sdk.add_custom_request_attribute('custom int attribute', 42)
-            sdk.add_custom_request_attribute('custom float attribute', 1.778)
-            sdk.add_custom_request_attribute('custom string attribute', 'snow is falling')
+        # Add 3 different custom attributes.
+        sdk.add_custom_request_attribute('custom int attribute', 42)
+        sdk.add_custom_request_attribute('custom float attribute', 1.778)
+        sdk.add_custom_request_attribute('custom string attribute', 'snow is falling')
 
-            # This call will trigger the diagnostic callback.
-            sdk.add_custom_request_attribute('another key', None)
-            mock_process_incoming_message()
-            mock_process_incoming_message()
-            mock_process_incoming_message()
+        # This call will trigger the diagnostic callback.
+        sdk.add_custom_request_attribute('another key', None)
+        mock_process_incoming_message()
+        mock_process_incoming_message()
+        mock_process_incoming_message()
 
 def mock_process_incoming_message():
     sdk = getsdk()

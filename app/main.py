@@ -139,7 +139,7 @@ def mock_process_incoming_message():
 
 
 @app.get("/mock_outgoing_web_request")
-def mock_outgoing_web_request():
+def mock_outgoing_web_request(request: Request):
     sdk = getsdk()
 
     # Create tracer and and request headers.
@@ -162,13 +162,11 @@ def mock_outgoing_web_request():
         outgoing_remote_call(success=True)
         rcall = outgoing_remote_call(success=True)
         # outgoing_remote_call(success=False)
-
-        link = sdk.create_in_process_link()
-        payload = {
-            "link": link,
-        }
+        headers = {}
+        tracer.inject_headers(headers)
         try:
-            response = requests.post('http://localhost:8000/mock_incoming_web_request', data=payload)
+            
+            response = requests.post('http://localhost:8000/mock_incoming_web_request', headers=headers)
             print("payload: ", str(link))
             if response.status_code == 200:
                 print("Successfully called mock_incoming_web_request")
