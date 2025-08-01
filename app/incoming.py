@@ -23,13 +23,14 @@ async def startup_event():
 def mock_incoming_web_request(request: Request):
     sdk = getsdk()
     headers = dict(request.headers)
-    # wappinfo = sdk.create_web_application_info(
-    #     virtual_host='snek.com', # Logical name of the host server.
-    #     application_id='PythonSnekApp', # Unique web application ID.
-    #     context_root='/python-web-app/') # App's prefix of the path part of the URL.
+    wappinfo = sdk.create_web_application_info(
+        virtual_host='snek.com', # Logical name of the host server.
+        application_id='PythonSnekApp', # Unique web application ID.
+        context_root='/python-web-app/') # App's prefix of the path part of the URL.
 
     # with wappinfo:
     wreq = sdk.trace_incoming_web_request(
+        wappinfo,
         url=str(request.url),
         method=request.method,
         headers=headers)
