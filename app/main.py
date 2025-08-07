@@ -151,6 +151,7 @@ def mock_outgoing_web_request(request: Request):
         # request if you want that the path is continued on the receiving site. Use the constant
         # oneagent.common.DYNATRACE_HTTP_HEADER_NAME as request header name.
         tag = tracer.outgoing_dynatrace_string_tag
+        print('Outgoing dynatrace tag:', repr(tag))
 
         # Here you process and send your web request.
         _process_my_outgoing_request(tag)
@@ -159,8 +160,8 @@ def mock_outgoing_web_request(request: Request):
         # tracer and you shouldn't forget to set the status code, too.
         tracer.add_response_headers({'Content-Length': '1234'})
         tracer.set_status_code(200) # OK
-        outgoing_remote_call(success=True)
-        rcall = outgoing_remote_call(success=True)
+        # outgoing_remote_call(success=True)
+        # rcall = outgoing_remote_call(success=True)
         # outgoing_remote_call(success=False)
         try:
             response = requests.post('http://localhost:8000/mock_incoming_web_request')
