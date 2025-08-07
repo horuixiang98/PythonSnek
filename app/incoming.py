@@ -27,35 +27,36 @@ def mock_incoming_web_request(request: Request):
     params = dict(request.query_params)
     print('Link parameter:', params.get('link'))
     do_remote_call_thread_func(params.get('link'), True)
-    wappinfo = sdk.create_web_application_info(
-        virtual_host='snek.com', # Logical name of the host server.
-        application_id='PythonSnekApp', # Unique web application ID.
-        context_root='/python-web-app/') # App's prefix of the path part of the URL.
+    return {'message': 'Hello World'}
+    # wappinfo = sdk.create_web_application_info(
+    #     virtual_host='snek.com', # Logical name of the host server.
+    #     application_id='PythonSnekApp', # Unique web application ID.
+    #     context_root='/python-web-app/') # App's prefix of the path part of the URL.
 
     # with wappinfo:
-    wreq = sdk.trace_incoming_web_request(
-        wappinfo,
-        url=str(request.url),
-        method=request.method,
-        headers=headers,
-        str_tag=params.get('link'),
-        byte_tag=params.get('link'))
-    with wreq:
-        wreq.add_parameter('my_form_field', '1234')
-        # Process web request
-        wreq.add_response_headers({'Content-Length': '1234'})
-        wreq.set_status_code(200) # OK
+    # wreq = sdk.trace_incoming_web_request(
+    #     wappinfo,
+    #     url=str(request.url),
+    #     method=request.method,
+    #     headers=headers,
+    #     str_tag=params.get('link'),
+    #     byte_tag=params.get('link'))
+    # with wreq:
+    #     wreq.add_parameter('my_form_field', '1234')
+    #     # Process web request
+    #     wreq.add_response_headers({'Content-Length': '1234'})
+    #     wreq.set_status_code(200) # OK
 
-        # Add 3 different custom attributes.
-        sdk.add_custom_request_attribute('custom int attribute', 42)
-        sdk.add_custom_request_attribute('custom float attribute', 1.778)
-        sdk.add_custom_request_attribute('custom string attribute', 'snow is falling')
+    #     # Add 3 different custom attributes.
+    #     sdk.add_custom_request_attribute('custom int attribute', 42)
+    #     sdk.add_custom_request_attribute('custom float attribute', 1.778)
+    #     sdk.add_custom_request_attribute('custom string attribute', 'snow is falling')
 
-        # This call will trigger the diagnostic callback.
-        sdk.add_custom_request_attribute('another key', None)
-        mock_process_incoming_message()
-        mock_process_incoming_message()
-        mock_process_incoming_message()
+    #     # This call will trigger the diagnostic callback.
+    #     sdk.add_custom_request_attribute('another key', None)
+    #     mock_process_incoming_message()
+    #     mock_process_incoming_message()
+    #     mock_process_incoming_message()
 
 def mock_process_incoming_message():
     sdk = getsdk()
@@ -92,9 +93,9 @@ def do_remote_call_thread_func(strtag, success):
         # We use positional arguments to specify required values and named
         # arguments to specify optional values.
         incall = getsdk().trace_incoming_remote_call(
-            'GetUserMethod', 'GetUserService',
-            'dupypr://localhost/getUserEndpoint',
-            protocol_name='USER_PY_PROTOCOL', str_tag=strtag)
+            'GetCategoryMethod', 'GetCategoryService',
+            'dupypr://localhost/getCategoryEndpoint',
+            protocol_name='Category_PY_PROTOCOL', str_tag=strtag)
         with incall:
             if not success:
                 raise RuntimeError('Remote call failed on the server side.')
