@@ -26,7 +26,7 @@ def app_user_service(request: Request):
     # headers = dict(request.headers)
     params = dict(request.query_params)
     print('Strtag parameter:', params.get('strtag'))
-    do_remote_call_thread_func("/GetCategoryMethod","GetCategoryService","dupypr://localhost/getCategoryEndpoint","Category_PY_PROTOCOL", params.get('link'), True)
+    do_remote_call_thread_func("/GetCategoryMethod","GetCategoryService","dupypr://localhost/getCategoryEndpoint","Category_PY_PROTOCOL", params.get('strtag'), True)
     print('AppUserService Executed')
     return {'message': 'AppUserService Executed'}
 

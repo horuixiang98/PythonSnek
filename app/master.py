@@ -45,7 +45,7 @@ def mock_outgoing_web_request(request: Request):
         # outgoing_remote_call(success=True)
         # outgoing_remote_call(success=False)
         try:
-            response = requests.post('http://localhost:8000/appUserService', params={'link': tag})
+            response = requests.post('http://localhost:8000/appUserService', params={'strtag': tag})
             if response.status_code == 200:
                 print("Successfully called appUserService")
             else:
