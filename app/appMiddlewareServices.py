@@ -36,6 +36,7 @@ def app_middleware_service(request: Request):
         onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
         protocol_name=protocol)
     with call: 
+        mock_outgoing_message()
         trigger_category(params.get('strtag'))
         return {'message': 'AppMiddlewareService Executed'}
 
@@ -99,3 +100,20 @@ def do_remote_call_thread_func(method, service, endpoint, protocol, strtag, succ
     except Exception as e:
         failed[0] = e
         raise
+
+def mock_outgoing_message():
+    sdk = getsdk()
+
+    # Create the messaging system info object.
+    msi_handle = sdk.create_messaging_system_info(
+        'MyMiddlewareVendor', 'MyMiddlewareDestination', MessagingDestinationType.TOPIC,
+        onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.11.12.13:1415'))
+
+    with msi_handle:
+        # Create the outgoing message tracer;
+        with sdk.trace_outgoing_message(msi_handle) as tracer:
+            # Set the message and correlation IDs.
+            tracer.set_vendor_message_id('msgId')
+            tracer.set_correlation_id('corrId')
+
+            print('handle outgoing message')
