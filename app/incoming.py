@@ -37,7 +37,8 @@ def mock_incoming_web_request(request: Request):
         url=str(request.url),
         method=request.method,
         headers=headers,
-        str_tag=params.get('link'))
+        str_tag=params.get('link'),
+        byte_tag=params.get('link'))
     with wreq:
         wreq.add_parameter('my_form_field', '1234')
         # Process web request
