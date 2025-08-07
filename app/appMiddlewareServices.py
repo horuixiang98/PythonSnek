@@ -36,8 +36,14 @@ def app_middleware_service(request: Request):
             endpoint,
             protocol_name=protocol, str_tag=params.get('strtag'))
     with incall: 
-        mock_outgoing_message()
-        trigger_category(params.get('strtag'))
+        call = getsdk().trace_outgoing_remote_call(
+            method, service, endpoint,
+            onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
+            protocol_name=protocol)
+        with call:
+            tag = call.outgoing_dynatrace_string_tag()
+            mock_outgoing_message()
+            trigger_category(tag)
         return {'message': 'AppMiddlewareService Executed'}
 
 def trigger_category(strtag):
