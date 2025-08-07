@@ -35,26 +35,19 @@ def app_middleware_service(request: Request):
         method, service, endpoint,
         onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
         protocol_name=protocol)
-    try:
-        tag = call.outgoing_dynatrace_string_tag
-        print('Outgoing dynatrace tag:', str(tag))
-        response = requests.post('http://localhost:8002/appCategoryService', params={'strtag': tag})
+    with call: 
+        trigger_category(params.get('strtag'))
+        return {'message': 'AppMiddlewareService Executed'}
+
+def trigger_category(strtag):
+    try: 
+        response = requests.post('http://localhost:8002/appCategoryService', params={'strtag': strtag})
         if response.status_code == 200:
             print("Successfully called appCategoryService")
         else:
             print(f"Failed to call appCategoryService: {response.status_code}")
     except requests.exceptions.RequestException as e:
         print(f"Error making request: {e}")
-    # try:
-        
-    #     link = sdk.create_in_process_link()
-    #     with sdk.trace_in_process_link(link):
-    #         do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
-    #         print('AppMiddlewareService Executed')
-
-    # except RuntimeError: # Swallow the exception raised above.
-    #     pass
-    return {'message': 'AppMiddlewareService Executed'}
 
 def do_remote_call(method, service, endpoint, protocol, strtag, success):
     # This function simulates doing a remote call by calling a function
