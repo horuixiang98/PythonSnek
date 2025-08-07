@@ -31,11 +31,11 @@ def app_middleware_service(request: Request):
     service = 'GetMiddlewareService'
     endpoint = 'dupypr://localhost/getMiddlewareEndpoint'
     protocol = 'Middleware_PY_PROTOCOL'
-    call = getsdk().trace_outgoing_remote_call(
-        method, service, endpoint,
-        onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
-        protocol_name=protocol)
-    with call: 
+    incall = getsdk().trace_incoming_remote_call(
+            method, service,
+            endpoint,
+            protocol_name=protocol, str_tag=params.get('strtag'))
+    with incall: 
         mock_outgoing_message()
         trigger_category(params.get('strtag'))
         return {'message': 'AppMiddlewareService Executed'}
