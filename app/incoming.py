@@ -26,6 +26,7 @@ def mock_incoming_web_request(request: Request):
     headers = dict(request.headers)
     params = dict(request.query_params)
     print('Link parameter:', params.get('link'))
+    do_remote_call_thread_func(params.get('link'), True)
     wappinfo = sdk.create_web_application_info(
         virtual_host='snek.com', # Logical name of the host server.
         application_id='PythonSnekApp', # Unique web application ID.
@@ -84,3 +85,44 @@ def mock_process_incoming_message():
                     tinfo.trace_id, tinfo.span_id))
 
                 tracer.set_correlation_id('correlation_id')
+
+def do_remote_call_thread_func(strtag, success):
+    try:
+        print('+thread')
+        # We use positional arguments to specify required values and named
+        # arguments to specify optional values.
+        incall = getsdk().trace_incoming_remote_call(
+            'GetUserMethod', 'GetUserService',
+            'dupypr://localhost/getUserEndpoint',
+            protocol_name='USER_PY_PROTOCOL', str_tag=strtag)
+        with incall:
+            if not success:
+                raise RuntimeError('Remote call failed on the server side.')
+            dbinfo = getsdk().create_database_info(
+                'Northwind', onesdk.DatabaseVendor.SQLSERVER,
+                onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
+
+            # This with-block will automatically free the database info handle
+            # at the end. Note that the handle is used for multiple tracers. In
+            # general, it is recommended to reuse database (and web application)
+            # info handles as often as possible (for efficiency reasons).
+            with dbinfo:
+                traced_db_operation(
+                    dbinfo, "BEGIN TRAN;")
+                traced_db_operation(
+                    dbinfo,
+                    "SELECT TOP 1 qux FROM baz ORDER BY quux;")
+                traced_db_operation(
+                    dbinfo,
+                    "SELECT foo, bar FROM baz WHERE qux = 23")
+                traced_db_operation(
+                    dbinfo,
+                    "UPDATE baz SET foo = foo + 1 WHERE qux = 23;")
+                traced_db_operation(dbinfo, "COMMIT;")
+        print('-thread')
+    except Exception as e:
+        failed[0] = e
+        raise
+
+def traced_db_operation(dbinfo, sql):
+    print('+db', dbinfo, sql)
