@@ -26,7 +26,7 @@ def app_user_service(request: Request):
     # headers = dict(request.headers)
     params = dict(request.query_params)
     print('Strtag parameter:', params.get('strtag'))
-    method = '/Category_PY_PROTOCOL'
+    method = '/GetCategoryMethod'
     service = 'GetCategoryService'
     endpoint = 'dupypr://localhost/getCategoryEndpoint'
     protocol = 'Category_PY_PROTOCOL'
@@ -35,9 +35,14 @@ def app_user_service(request: Request):
         onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
         protocol_name=protocol)
     try:
+        link = sdk.create_in_process_link()
         with call:
             do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
+            do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
+            do_remote_call(method,service,endpoint,protocol, params.get('strtag'), False)
             print('AppUserService Executed')
+        with sdk.trace_in_process_link(link):
+            do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
     except RuntimeError: # Swallow the exception raised above.
         pass
     return {'message': 'AppUserService Executed'}
