@@ -36,7 +36,7 @@ def app_middleware_service(request: Request):
         onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
         protocol_name=protocol)
     try:
-        response = requests.post('http://localhost:8002/appCategoryService', params={'link': tag})
+        response = requests.post('http://localhost:8002/appCategoryService', params={'strtag': tag})
         if response.status_code == 200:
             print("Successfully called appCategoryService")
         else:
