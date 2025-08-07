@@ -26,9 +26,21 @@ def app_user_service(request: Request):
     # headers = dict(request.headers)
     params = dict(request.query_params)
     print('Strtag parameter:', params.get('strtag'))
-    do_remote_call_thread_func("/GetCategoryMethod","GetCategoryService","dupypr://localhost/getCategoryEndpoint","Category_PY_PROTOCOL", params.get('strtag'), True)
+    do_remote_call("/GetCategoryMethod","GetCategoryService","dupypr://localhost/getCategoryEndpoint","Category_PY_PROTOCOL", params.get('strtag'), True)
     print('AppUserService Executed')
     return {'message': 'AppUserService Executed'}
+
+def do_remote_call(method, service, endpoint, protocol, strtag, success):
+    # This function simulates doing a remote call by calling a function
+    # do_remote_call_thread_func in another thread, passing a string tag. See
+    # the documentation on tagging for more information.
+    workerthread = threading.Thread(
+        target=do_remote_call_thread_func,
+        args=(method, service, endpoint, protocol, strtag, success))
+    workerthread.start()
+    # Note that we need to join the thread, as all tagging assumes synchronous
+    # calls.
+    workerthread.join()
 
 def traced_db_operation(dbinfo, sql):
     print('+db', dbinfo, sql)
@@ -46,7 +58,7 @@ def do_remote_call_thread_func(method, service, endpoint, protocol, strtag, succ
             if not success:
                 raise RuntimeError('Remote call failed on the server side.')
             dbinfo = getsdk().create_database_info(
-                'Northwind', onesdk.DatabaseVendor.SQLSERVER,
+                'CategoryQuery', onesdk.DatabaseVendor.SQLSERVER,
                 onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
             with dbinfo:
                 traced_db_operation(
