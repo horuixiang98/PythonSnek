@@ -151,7 +151,7 @@ def mock_outgoing_web_request(request: Request):
         # request if you want that the path is continued on the receiving site. Use the constant
         # oneagent.common.DYNATRACE_HTTP_HEADER_NAME as request header name.
         tag = tracer.outgoing_dynatrace_string_tag
-        print('Outgoing dynatrace tag:', dict(tag))
+        print('Outgoing dynatrace tag:', str(tag))
 
         # Here you process and send your web request.
         _process_my_outgoing_request(tag)
