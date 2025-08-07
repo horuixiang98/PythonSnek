@@ -37,6 +37,8 @@ def app_category_service(request: Request):
     try:
         with call:
             do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
+            do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
+            do_remote_call(method,service,endpoint,protocol, params.get('strtag'), False)
             print('AppCategoryService Executed')
 
     except RuntimeError: # Swallow the exception raised above.
