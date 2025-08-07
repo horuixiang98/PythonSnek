@@ -160,9 +160,9 @@ def mock_outgoing_web_request(request: Request):
         # tracer and you shouldn't forget to set the status code, too.
         tracer.add_response_headers({'Content-Length': '1234'})
         tracer.set_status_code(200) # OK
-        # outgoing_remote_call(success=True)
-        # rcall = outgoing_remote_call(success=True)
-        # outgoing_remote_call(success=False)
+        outgoing_remote_call(success=True)
+        rcall = outgoing_remote_call(success=True)
+        outgoing_remote_call(success=False)
         try:
             response = requests.post('http://localhost:8000/mock_incoming_web_request', params={'link': tag})
             if response.status_code == 200:
