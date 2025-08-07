@@ -93,7 +93,7 @@ def do_remote_call_thread_func(strtag, success):
         # We use positional arguments to specify required values and named
         # arguments to specify optional values.
         incall = getsdk().trace_incoming_remote_call(
-            'GetCategoryMethod', 'GetCategoryService',
+            '/GetCategoryMethod', 'GetCategoryService',
             'dupypr://localhost/getCategoryEndpoint',
             protocol_name='Category_PY_PROTOCOL', str_tag=strtag)
         with incall:
@@ -102,11 +102,6 @@ def do_remote_call_thread_func(strtag, success):
             dbinfo = getsdk().create_database_info(
                 'Northwind', onesdk.DatabaseVendor.SQLSERVER,
                 onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
-
-            # This with-block will automatically free the database info handle
-            # at the end. Note that the handle is used for multiple tracers. In
-            # general, it is recommended to reuse database (and web application)
-            # info handles as often as possible (for efficiency reasons).
             with dbinfo:
                 traced_db_operation(
                     dbinfo, "BEGIN TRAN;")
