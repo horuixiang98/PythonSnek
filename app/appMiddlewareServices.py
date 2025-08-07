@@ -36,9 +36,7 @@ def app_middleware_service(request: Request):
         onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
         protocol_name=protocol)
     try:
-        tag = call.outgoing_dynatrace_string_tag
-        print('Outgoing dynatrace tag:', str(tag))
-        response = requests.post('http://localhost:8002/appCategoryService', params={'strtag': tag})
+        response = requests.post('http://localhost:8002/appCategoryService', params={'strtag': params.get('strtag')})
         if response.status_code == 200:
             print("Successfully called appCategoryService")
         else:
