@@ -51,8 +51,15 @@ def mock_outgoing_web_request(request: Request):
                 print("Successfully called appUserService")
             else:
                 print(f"Failed to call appUserService: {response.status_code}")
-            
-            
+        except requests.exceptions.RequestException as e:
+            print(f"Error making request: {e}")
+        try:
+            link = sdk.create_in_process_link()
+            response = requests.post('http://localhost:8001/appMiddlewareService', params={'strtag': tag})
+            if response.status_code == 200:
+                print("Successfully called appUserService")
+            else:
+                print(f"Failed to call appUserService: {response.status_code}")
         except requests.exceptions.RequestException as e:
             print(f"Error making request: {e}")
         # mock_incoming_web_request(link)

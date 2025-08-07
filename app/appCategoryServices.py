@@ -19,17 +19,17 @@ async def startup_event():
         print('do some fancy stuff')
 
 
-@app.post("/appUserService")
-def app_user_service(request: Request):
+@app.post("/appCategoryService")
+def app_category_service(request: Request):
     sdk = getsdk()
     # Get query parameters
     # headers = dict(request.headers)
     params = dict(request.query_params)
     print('Strtag parameter:', params.get('strtag'))
-    method = '/GetUserMethod'
-    service = 'GetUserService'
-    endpoint = 'dupypr://localhost/getUserEndpoint'
-    protocol = 'User_PY_PROTOCOL'
+    method = '/GetCategoryMethod'
+    service = 'GetCategoryService'
+    endpoint = 'dupypr://localhost/getCategoryEndpoint'
+    protocol = 'Category_PY_PROTOCOL'
     call = getsdk().trace_outgoing_remote_call(
         method, service, endpoint,
         onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
@@ -37,11 +37,11 @@ def app_user_service(request: Request):
     try:
         with call:
             do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
-            print('AppUserService Executed')
+            print('AppCategoryService Executed')
 
     except RuntimeError: # Swallow the exception raised above.
         pass
-    return {'message': 'AppUserService Executed'}
+    return {'message': 'AppCategoryService Executed'}
 
 def do_remote_call(method, service, endpoint, protocol, strtag, success):
     # This function simulates doing a remote call by calling a function
@@ -74,7 +74,7 @@ def do_remote_call_thread_func(method, service, endpoint, protocol, strtag, succ
             if not success:
                 raise RuntimeError('Remote call failed on the server side.')
             dbinfo = getsdk().create_database_info(
-                'UserQuery', onesdk.DatabaseVendor.SQLSERVER,
+                'CategoryQuery', onesdk.DatabaseVendor.SQLSERVER,
                 onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
             with dbinfo:
                 traced_db_operation(
