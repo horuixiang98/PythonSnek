@@ -36,13 +36,14 @@ def app_user_service(request: Request):
         protocol_name=protocol)
     try:
         link = sdk.create_in_process_link()
+        strtag = call.outgoing_dynatrace_string_tag
         with call:
-            do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
-            do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
-            do_remote_call(method,service,endpoint,protocol, params.get('strtag'), False)
+            do_remote_call(method,service,endpoint,protocol, strtag, True)
+            do_remote_call(method,service,endpoint,protocol, strtag, True)
+            do_remote_call(method,service,endpoint,protocol, strtag, False)
             print('AppUserService Executed')
         with sdk.trace_in_process_link(link):
-            do_remote_call(method,service,endpoint,protocol, params.get('strtag'), True)
+            do_remote_call(method,service,endpoint,protocol, strtag, True)
     except RuntimeError: # Swallow the exception raised above.
         pass
     return {'message': 'AppUserService Executed'}
