@@ -41,7 +41,7 @@ def app_middleware_service(request: Request):
             onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
             protocol_name=protocol)
         with call:
-            tag = call.outgoing_dynatrace_string_tag()
+            tag = call.outgoing_dynatrace_string_tag
             # mock_outgoing_message()
             trigger_category(tag)
         return {'message': 'AppMiddlewareService Executed'}
