@@ -25,28 +25,33 @@ def app_user_service(request: Request):
     # Get query parameters
     # headers = dict(request.headers)
     params = dict(request.query_params)
-    print('Strtag parameter:', params.get('strtag'))
     method = '/GetCategoryMethod'
     service = 'GetCategoryService'
     endpoint = 'dupypr://localhost/getCategoryEndpoint'
     protocol = 'Category_PY_PROTOCOL'
-    call = getsdk().trace_outgoing_remote_call(
-        method, service, endpoint,
-        onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
-        protocol_name=protocol)
-    try:
-        link = sdk.create_in_process_link()
-        strtag = call.outgoing_dynatrace_string_tag
-        with call:
-            do_remote_call(method,service,endpoint,protocol, strtag, True)
-            do_remote_call(method,service,endpoint,protocol, strtag, True)
-            do_remote_call(method,service,endpoint,protocol, strtag, False)
-            print('AppUserService Executed')
-        with sdk.trace_in_process_link(link):
-            do_remote_call(method,service,endpoint,protocol, strtag, True)
-    except RuntimeError: # Swallow the exception raised above.
-        pass
-    return {'message': 'AppUserService Executed'}
+    print('Strtag parameter:', params.get('strtag'))
+    incall = getsdk().trace_incoming_remote_call(
+            method, service,
+            endpoint,
+            protocol_name=protocol, str_tag=params.get('strtag'))
+    with incall:
+        call = getsdk().trace_outgoing_remote_call(
+            method, service, endpoint,
+            onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
+            protocol_name=protocol)
+        try:
+            link = sdk.create_in_process_link()
+            strtag = call.outgoing_dynatrace_string_tag
+            with call:
+                do_remote_call(method,service,endpoint,protocol, strtag, True)
+                do_remote_call(method,service,endpoint,protocol, strtag, True)
+                do_remote_call(method,service,endpoint,protocol, strtag, False)
+                print('AppUserService Executed')
+            with sdk.trace_in_process_link(link):
+                do_remote_call(method,service,endpoint,protocol, strtag, True)
+        except RuntimeError: # Swallow the exception raised above.
+            pass
+        return {'message': 'AppUserService Executed'}
 
 def do_remote_call(method, service, endpoint, protocol, strtag, success):
     # This function simulates doing a remote call by calling a function
