@@ -96,5 +96,4 @@ def do_remote_call_thread_func(strtag, success):
                 traced_db_operation(dbinfo, "COMMIT;")
         print('-thread')
     except Exception as e:
-        failed[0] = e
         raise
