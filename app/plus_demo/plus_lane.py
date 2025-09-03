@@ -38,13 +38,16 @@ def mock_outgoing_web_request(request: Request):
         wreq.set_status_code(200) # OK
 
         url = 'http://plus-demo.com/lane-one/RFID'
-        req = Request(url)
-        req.add_header('header1', '1234')
-        req.add_header('header2', '5678')
-        tracer = sdk.trace_outgoing_web_request(url, req.method, req.headers)
+        headers = {
+            'header1': '1234',
+            'header2': '5678'
+        }
+        # Use requests library for making HTTP requests
+        tracer = sdk.trace_outgoing_web_request(url, 'GET', headers)
 
         with tracer:
-            # Get and set the Dynatrace tag.
+            # Get and set the Dynatrace tag
             tag = tracer.outgoing_dynatrace_string_tag
-            req.add_header(DYNATRACE_HTTP_HEADER_NAME, tag)
+            headers['X-Dynatrace'] = tag
+            response = requests.get(url, headers=headers)
 
