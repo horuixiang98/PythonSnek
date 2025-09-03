@@ -37,23 +37,20 @@ def mock_outgoing_web_request(request: Request):
         wreq.add_response_headers({'Content-Length': '1234'})
         wreq.set_status_code(200) # OK
 
-        url = 'http://localhost/plus_lane_one/RFID'
-        headers = {
-            'header1': '1234',
-            'header2': '5678'
-        }
-        # Use requests library for making HTTP requests
-        tracer = sdk.trace_outgoing_web_request(url, 'GET', headers)
+        tracer = sdk.trace_outgoing_web_request('http://plus-demo.com/plus_lane_one/RFID', 'GET',
+                                            headers={'X-not-a-useful-header': 'python-was-here'})
 
-        with tracer:
-            # Get and set the Dynatrace tag
-            tag = tracer.outgoing_dynatrace_string_tag
-            headers['X-Dynatrace'] = tag
-            response = requests.get(url, headers=headers)
-            return response.text
+    with tracer:
+        # Now get the outgoing dynatrace tag. You have to add this tag as request header to your
+        # request if you want that the path is continued on the receiving site. Use the constant
+        # oneagent.common.DYNATRACE_HTTP_HEADER_NAME as request header name.
+        tag = tracer.outgoing_dynatrace_string_tag
+        print('Outgoing dynatrace tag:', str(tag))
 
-
-
-@app.get("/plus_lane_one/RFID")
-def plus_lane_one_rfid(request: Request):
-    return "true"
+        # As soon as the response is received, you can add the response headers to the
+        # tracer and you shouldn't forget to set the status code, too.
+        tracer.add_response_headers({'Content-Length': '1234'})
+        tracer.set_status_code(200) # OK
+        # outgoing_remote_call(success=True)
+        # outgoing_remote_call(success=True)
+        # outgoing_remote_call(success=False)
