@@ -36,19 +36,18 @@ def mock_outgoing_web_request(request: Request):
         wreq.add_response_headers({'Content-Length': '1234'})
         
         wreq.set_status_code(200) # OK
-        
+        dbinfo = sdk.create_database_info(
+            'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
+            oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
+        with sdk.trace_sql_database_request(dbinfo, 'SELECT JGP9898 FROM CarPlate;') as tracer:
+            # Do actual DB request
+            tracer.set_rows_returned(42) # Optional
+            tracer.set_round_trip_count(3) # Optional 
         call = getsdk().trace_outgoing_remote_call(
             'ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint',
             onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'plus-demo.com'),
             protocol_name='Scanner_PY_PROTOCOL')
         with call:
-            dbinfo = sdk.create_database_info(
-                'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
-                oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
-            with sdk.trace_sql_database_request(dbinfo, 'SELECT JGP9898 FROM CarPlate;') as tracer:
-                # Do actual DB request
-                tracer.set_rows_returned(42) # Optional
-                tracer.set_round_trip_count(3) # Optional 
                 # Note that this property can only be accessed after starting the
                 # tracer. See the documentation on tagging for more information.
                 strtag = call.outgoing_dynatrace_string_tag
