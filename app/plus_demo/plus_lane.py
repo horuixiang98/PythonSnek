@@ -50,4 +50,5 @@ def mock_outgoing_web_request(request: Request):
             tag = tracer.outgoing_dynatrace_string_tag
             headers['X-Dynatrace'] = tag
             response = requests.get(url, headers=headers)
+            return response.text
 
