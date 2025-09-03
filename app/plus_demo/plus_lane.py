@@ -30,27 +30,25 @@ def mock_outgoing_web_request(request: Request):
             'GET',
             headers={'Host': 'plus-demo.com'},
             remote_address='127.0.0.1:12345')
-
     with wreq:
+        dbinfo = sdk.create_database_info(
+            'Northwind', oneagent.sdk.DatabaseVendor.SQLSERVER,
+            oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
+        with sdk.trace_sql_database_request(dbinfo, 'SELECT foo FROM bar;') as tracer:
+            # Do actual DB request
+            tracer.set_rows_returned(42) # Optional
+            tracer.set_round_trip_count(3) # Optional   
         wreq.add_parameter('my_form_field', '1234')
         # Process web request
         wreq.add_response_headers({'Content-Length': '1234'})
+        
         wreq.set_status_code(200) # OK
-
-        tracer = sdk.trace_outgoing_web_request('http://plus-demo.com/plus_lane_one/RFID', 'GET',
-                                            headers={'X-not-a-useful-header': 'python-was-here'})
-
-    with tracer:
-        # Now get the outgoing dynatrace tag. You have to add this tag as request header to your
-        # request if you want that the path is continued on the receiving site. Use the constant
-        # oneagent.common.DYNATRACE_HTTP_HEADER_NAME as request header name.
-        tag = tracer.outgoing_dynatrace_string_tag
-        print('Outgoing dynatrace tag:', str(tag))
-
-        # As soon as the response is received, you can add the response headers to the
-        # tracer and you shouldn't forget to set the status code, too.
-        tracer.add_response_headers({'Content-Length': '1234'})
-        tracer.set_status_code(200) # OK
-        # outgoing_remote_call(success=True)
-        # outgoing_remote_call(success=True)
-        # outgoing_remote_call(success=False)
+        
+        call = getsdk().trace_outgoing_remote_call(
+            'dummyPyMethod', 'DummyPyService', 'dupypr://localhost/dummyEndpoint',
+            onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
+            protocol_name='DUMMY_PY_PROTOCOL')
+        with call:
+            # Note that this property can only be accessed after starting the
+            # tracer. See the documentation on tagging for more information.
+            strtag = call.outgoing_dynatrace_string_tag
