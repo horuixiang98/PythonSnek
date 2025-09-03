@@ -51,7 +51,7 @@ def mock_outgoing_web_request(request: Request):
                 # Note that this property can only be accessed after starting the
                 # tracer. See the documentation on tagging for more information.
                 strtag = call.outgoing_dynatrace_string_tag
-                do_remote_call_thread_func(strtag, success)
+                do_remote_call_thread_func(strtag, success=True)
                 # deductCredit = sdk.trace_incoming_remote_call(
                 #     'deductCreditMethod', 'deductCreditServiceName', 'rmi://plus-demo.com/ScannerEndpoint/deductCredit',
                 #     protocol_name='RMI/custom',
