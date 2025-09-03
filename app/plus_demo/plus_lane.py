@@ -36,10 +36,10 @@ def mock_outgoing_web_request(request: Request):
         wreq.add_response_headers({'Content-Length': '1234'})
         
         wreq.set_status_code(200) # OK
-        dbinfo = sdk.create_database_info(
+        dbinfoCheckCarPlate = sdk.create_database_info(
             'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
             oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
-        with sdk.trace_sql_database_request(dbinfo, 'SELECT JGP9898 FROM CarPlate;') as tracer:
+        with sdk.trace_sql_database_request(dbinfoCheckCarPlate, 'SELECT JGP9898 FROM CarPlate;') as tracer:
             # Do actual DB request
             tracer.set_rows_returned(42) # Optional
             tracer.set_round_trip_count(3) # Optional 
@@ -70,23 +70,23 @@ def do_remote_call_thread_func(strtag, success):
         with incall:
             if not success:
                 raise RuntimeError('Remote call failed on the server side.')
-            dbinfo = getsdk().create_database_info(
-                'Northwind', onesdk.DatabaseVendor.SQLSERVER,
+            dbinfoDeductCredit = getsdk().create_database_info(
+                'deductCredit', onesdk.DatabaseVendor.SQLSERVER,
                 onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
 
-            with dbinfo:
+            with dbinfoDeductCredit:
                 traced_db_operation(
-                    dbinfo, "BEGIN TRAN;")
+                    dbinfoDeductCredit, "BEGIN TRAN;")
                 traced_db_operation(
-                    dbinfo,
+                    dbinfoDeductCredit,
                     "SELECT TOP 1 qux FROM baz ORDER BY quux;")
                 traced_db_operation(
-                    dbinfo,
+                    dbinfoDeductCredit,
                     "SELECT foo, bar FROM baz WHERE qux = 23")
                 traced_db_operation(
-                    dbinfo,
+                    dbinfoDeductCredit,
                     "UPDATE baz SET foo = foo + 1 WHERE qux = 23;")
-                traced_db_operation(dbinfo, "COMMIT;")
+                traced_db_operation(dbinfoDeductCredit, "COMMIT;")
     except Exception as e:
         raise
 
