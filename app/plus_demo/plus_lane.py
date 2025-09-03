@@ -43,22 +43,16 @@ def mock_outgoing_web_request(request: Request):
             # Do actual DB request
             tracer.set_rows_returned(42) # Optional
             tracer.set_round_trip_count(3) # Optional 
-            call = getsdk().trace_outgoing_remote_call(
-                'ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint',
-                onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'plus-demo.com'),
-                protocol_name='Scanner_PY_PROTOCOL')
-            with call:
-                    # Note that this property can only be accessed after starting the
-                    # tracer. See the documentation on tagging for more information.
-                    strtag = call.outgoing_dynatrace_string_tag
-                    do_remote_call(strtag, success=True)
-                    # deductCredit = sdk.trace_incoming_remote_call(
-                    #     'deductCreditMethod', 'deductCreditServiceName', 'rmi://plus-demo.com/ScannerEndpoint/deductCredit',
-                    #     protocol_name='RMI/custom',
-                    #     str_tag=strtag)
-                    # with deductCredit:
-                    #     do_remote_call_thread_func(strtag, True)
-                    #     pass # Here you would do the actual work that is timed
+            with tracer:
+                call = getsdk().trace_outgoing_remote_call(
+                    'ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint',
+                    onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'plus-demo.com'),
+                    protocol_name='Scanner_PY_PROTOCOL')
+                with call:
+                        # Note that this property can only be accessed after starting the
+                        # tracer. See the documentation on tagging for more information.
+                        strtag = call.outgoing_dynatrace_string_tag
+                        do_remote_call(strtag, success=True)
 
 
 def do_remote_call_thread_func(strtag, success):
