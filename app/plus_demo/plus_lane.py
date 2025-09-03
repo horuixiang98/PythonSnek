@@ -97,3 +97,20 @@ def do_remote_call_thread_func(strtag, success):
         print('-thread')
     except Exception as e:
         raise
+
+def traced_db_operation(dbinfo, sql):
+    print('+db', dbinfo, sql)
+
+    # Entering the with block automatically start the tracer.
+    with getsdk().trace_sql_database_request(dbinfo, sql) as tracer:
+
+        # In real-world code, you would do the actual database operation here,
+        # i.e. call the database's API.
+
+        # Set an optional "exit"-field on the tracer. Whenever there is a
+        # setter available on a tracer (as opposed to an optional parameter to a
+        # trace_* function), it may be called anytime between creating and
+        # ending the tracer (i.e. also after starting it).
+        tracer.set_round_trip_count(3)
+
+    print('-db', dbinfo, sql)
