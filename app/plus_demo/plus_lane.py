@@ -51,7 +51,7 @@ def mock_outgoing_web_request(request: Request):
                     # Note that this property can only be accessed after starting the
                     # tracer. See the documentation on tagging for more information.
                     strtag = call.outgoing_dynatrace_string_tag
-                    do_remote_call_thread_func(strtag, success=True)
+                    do_remote_call(strtag, success=True)
                     # deductCredit = sdk.trace_incoming_remote_call(
                     #     'deductCreditMethod', 'deductCreditServiceName', 'rmi://plus-demo.com/ScannerEndpoint/deductCredit',
                     #     protocol_name='RMI/custom',
@@ -65,8 +65,8 @@ def do_remote_call_thread_func(strtag, success):
     try:
         incall = getsdk().trace_incoming_remote_call(
             'deductCreditMethod', 'deductCreditService',
-            'rmi://plus-demo.com/ScannerEndpoint/deductCredit',
-             protocol_name='RMI/custom', str_tag=strtag)
+            'dupypr://plus-demo.com/ScannerEndpoint',
+            protocol_name='RMI/custom', str_tag=strtag)
         with incall:
             if not success:
                 raise RuntimeError('Remote call failed on the server side.')
@@ -89,6 +89,19 @@ def do_remote_call_thread_func(strtag, success):
                 traced_db_operation(dbinfo, "COMMIT;")
     except Exception as e:
         raise
+
+def do_remote_call(strtag, success):
+    # This function simulates doing a remote call by calling a function
+    # do_remote_call_thread_func in another thread, passing a string tag. See
+    # the documentation on tagging for more information.
+    workerthread = threading.Thread(
+        target=do_remote_call_thread_func,
+        args=(strtag, success))
+    workerthread.start()
+
+    # Note that we need to join the thread, as all tagging assumes synchronous
+    # calls.
+    workerthread.join()
 
 def traced_db_operation(dbinfo, sql):
     print('+db', dbinfo, sql)
