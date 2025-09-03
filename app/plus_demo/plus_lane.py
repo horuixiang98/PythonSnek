@@ -32,9 +32,9 @@ def mock_outgoing_web_request(request: Request):
             remote_address='127.0.0.1:12345')
     with wreq:
         dbinfo = sdk.create_database_info(
-            'Northwind', oneagent.sdk.DatabaseVendor.SQLSERVER,
-            oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
-        with sdk.trace_sql_database_request(dbinfo, 'SELECT foo FROM bar;') as tracer:
+            'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
+            oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
+        with sdk.trace_sql_database_request(dbinfo, 'SELECT JGP9898 FROM CarPlate;') as tracer:
             # Do actual DB request
             tracer.set_rows_returned(42) # Optional
             tracer.set_round_trip_count(3) # Optional   
@@ -45,9 +45,9 @@ def mock_outgoing_web_request(request: Request):
         wreq.set_status_code(200) # OK
         
         call = getsdk().trace_outgoing_remote_call(
-            'dummyPyMethod', 'DummyPyService', 'dupypr://localhost/dummyEndpoint',
-            onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'localhost'),
-            protocol_name='DUMMY_PY_PROTOCOL')
+            'ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint',
+            onesdk.Channel(onesdk.ChannelType.IN_PROCESS, 'plus-demo.com'),
+            protocol_name='Scanner_PY_PROTOCOL')
         with call:
             # Note that this property can only be accessed after starting the
             # tracer. See the documentation on tagging for more information.
