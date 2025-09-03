@@ -37,7 +37,7 @@ def mock_outgoing_web_request(request: Request):
         wreq.add_response_headers({'Content-Length': '1234'})
         wreq.set_status_code(200) # OK
 
-        url = '/plus_lane_one/RFID'
+        url = 'localhost/plus_lane_one/RFID'
         headers = {
             'header1': '1234',
             'header2': '5678'
