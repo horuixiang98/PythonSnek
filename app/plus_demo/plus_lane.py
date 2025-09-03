@@ -22,11 +22,11 @@ async def startup_event():
 @app.get("/plus_lane_one")
 def mock_outgoing_web_request(request: Request):
     sdk = getsdk()
-    wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/lane-one/')
+    wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_one/')
     with wappinfo:
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
-            'http://plus-demo.com/lane-one/',
+            'http://plus-demo.com/plus_lane_one/',
             'GET',
             headers={'Host': 'plus-demo.com'},
             remote_address='127.0.0.1:12345')
@@ -37,7 +37,7 @@ def mock_outgoing_web_request(request: Request):
         wreq.add_response_headers({'Content-Length': '1234'})
         wreq.set_status_code(200) # OK
 
-        url = 'http://plus-demo.com/lane-one/RFID'
+        url = '/plus_lane_one/RFID'
         headers = {
             'header1': '1234',
             'header2': '5678'
@@ -52,3 +52,8 @@ def mock_outgoing_web_request(request: Request):
             response = requests.get(url, headers=headers)
             return response.text
 
+
+
+@app.get("/plus_lane_one/RFID")
+def plus_lane_one_rfid(request: Request):
+    return "true"
