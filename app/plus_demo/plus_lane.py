@@ -60,7 +60,8 @@ def mock_outgoing_web_request(request: Request):
         traceTag = trace_outgoing_remote_call_func(traceDeductCreditOutgoingInfo)
         print('traceTag: ', traceTag)
         traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
-        do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo)
+        deductCreditQueries=['BEGIN TRAN;', 'SELECT TOP 1 id FROM Carplate ORDER BY id;', 'SELECT * FROM creditBalance WHERE id = 23', 'UPDATE creditBalance SET credit = credit - 2.30 WHERE id = 23;', 'COMMIT;']
+        do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo, queries=deductCreditQueries)
 
 
 ##################################### Functions #######################################
@@ -101,35 +102,30 @@ def traced_db_operation(dbinfo, sql):
     print('-db', dbinfo, sql)
 
 
-def do_incoming_remote_call(strtag, success, trace_obj: TraceObject):
+def do_incoming_remote_call(strtag, success, trace_obj: TraceObject, queries=[]):
     workerthread = threading.Thread(
         target=do_remote_call_thread_func,
-        args=(strtag, success, trace_obj))
+        args=(strtag, success, trace_obj, queries))
     workerthread.start()
     # Note that we need to join the thread, as all tagging assumes synchronous
     # calls.
     workerthread.join()
 
-def do_remote_call_thread_func(strtag, success, trace_obj: TraceObject):
+def do_remote_call_thread_func(strtag, success, trace_obj: TraceObject, queries):
     try:
         incall = trace_incoming_remote_call_func(strtag, success, trace_obj)
         with incall:
             dbinfoDeductCredit = getsdk().create_database_info(
                 'deductCredit', onesdk.DatabaseVendor.SQLSERVER,
                 onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
-
             with dbinfoDeductCredit:
-                traced_db_operation(
-                    dbinfoDeductCredit, "BEGIN TRAN;")
-                traced_db_operation(
-                    dbinfoDeductCredit,
-                    "SELECT TOP 1 qux FROM baz ORDER BY quux;")
-                traced_db_operation(
-                    dbinfoDeductCredit,
-                    "SELECT foo, bar FROM baz WHERE qux = 23")
-                traced_db_operation(
-                    dbinfoDeductCredit,
-                    "UPDATE baz SET foo = foo + 1 WHERE qux = 23;")
-                traced_db_operation(dbinfoDeductCredit, "COMMIT;")
+                if queries:
+                    for query in queries:
+                        traced_db_operation(
+                            dbinfoDeductCredit,
+                            query)
+                else:
+                    pass
     except Exception as e:
+        print(f"Error in remote call thread: {e}")
         raise
