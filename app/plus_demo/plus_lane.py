@@ -47,7 +47,8 @@ def mock_outgoing_web_request(request: Request):
         traceCarPlateOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
         traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
         traceCarPlateIncomingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-        do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo)
+        traceCarPlateQueries=['BEGIN TRAN;', 'SELECT TOP 1 id FROM Carplate ORDER BY id;', 'SELECT * FROM creditBalance WHERE id = 23','COMMIT;']
+        do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo, queries=traceCarPlateQueries)
         # dbinfoCheckCarPlate = sdk.create_database_info(
         #     'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
         #     oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
@@ -60,7 +61,7 @@ def mock_outgoing_web_request(request: Request):
         traceTag = trace_outgoing_remote_call_func(traceDeductCreditOutgoingInfo)
         print('traceTag: ', traceTag)
         traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
-        deductCreditQueries=['BEGIN TRAN;', 'SELECT TOP 1 id FROM Carplate ORDER BY id;', 'SELECT * FROM creditBalance WHERE id = 23', 'UPDATE creditBalance SET credit = credit - 2.30 WHERE id = 23;', 'COMMIT;']
+        deductCreditQueries=['BEGIN TRAN;', 'SELECT * FROM creditBalance WHERE id = 23', 'UPDATE creditBalance SET credit = credit - 2.30 WHERE id = 23;', 'COMMIT;']
         do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo, queries=deductCreditQueries)
 
 
