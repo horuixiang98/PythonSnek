@@ -44,10 +44,11 @@ def mock_outgoing_web_request(request: Request):
         wreq.set_status_code(200) # OK
 
         # Check CarPlate in DB
-        traceCarPlateInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-        traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateInfo)
-        if traceCarPlateTag:
-            do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateInfo)
+        # traceCarPlateOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        # traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
+        # if traceCarPlateTag:
+        #     traceCarPlateIncomingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        #     do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo)
         # dbinfoCheckCarPlate = sdk.create_database_info(
         #     'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
         #     oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
@@ -56,11 +57,11 @@ def mock_outgoing_web_request(request: Request):
         # tracer.set_rows_returned(42) # Optional
         # tracer.set_round_trip_count(3) # Optional 
         # with tracer:
-        traceInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-        traceTag = trace_outgoing_remote_call_func(traceInfo)
+        traceDeductCreditOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        traceTag = trace_outgoing_remote_call_func(traceDeductCreditOutgoingInfo)
         if traceTag:
-            traceInfo = TraceObject('deductCreditMethod', 'deductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
-            do_incoming_remote_call(traceTag, success=True, trace_obj=traceInfo)
+            traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
+            do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo)
 
 
 ##################################### Functions #######################################
@@ -78,7 +79,6 @@ def trace_incoming_remote_call_func(strtag, success, trace_obj: TraceObject):
             trace_obj.Method, trace_obj.Service,
             trace_obj.Endpoint,
             protocol_name=trace_obj.Protocol, str_tag=strtag)
-
     with incall:
         if not success:
             raise RuntimeError('Remote call failed on the server side.')
