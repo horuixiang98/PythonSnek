@@ -149,7 +149,7 @@ def mock_outgoing_web_request_three(request: Request):
         deductCreditQueries=['BEGIN TRAN;','UPDATE creditBalance SET credit = credit - 2.30 WHERE id = 23;', 'COMMIT;']
         do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo, queries=deductCreditQueries)
 
-@app.get("/plus_lane_three")
+@app.get("/plus_lane_three_fail")
 def mock_outgoing_web_request_three(request: Request):
     sdk = getsdk()
     wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_one/')
