@@ -125,7 +125,7 @@ def mock_outgoing_web_request_two(request: Request):
             traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
             traceCarPlateIncomingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
             traceCarPlateQueries=['BEGIN TRAN;', 'SELECT TOP 1 id FROM Carplate ORDER BY id;', 'SELECT * FROM creditBalance WHERE id = 23','COMMIT;']
-            do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo, queries=traceCarPlateQueries):
+            do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo, queries=traceCarPlateQueries)
         except Exception as e:
             print(f"Error processing request: {e}")
         # dbinfoCheckCarPlate = sdk.create_database_info(
