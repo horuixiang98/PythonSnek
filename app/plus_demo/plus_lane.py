@@ -46,7 +46,7 @@ def mock_outgoing_web_request(request: Request):
         # Check CarPlate in DB
         traceCarPlateInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
         traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateInfo)
-        with traceCarPlateTag:
+        if traceCarPlateTag:
             do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateInfo)
         # dbinfoCheckCarPlate = sdk.create_database_info(
         #     'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
@@ -56,22 +56,22 @@ def mock_outgoing_web_request(request: Request):
         # tracer.set_rows_returned(42) # Optional
         # tracer.set_round_trip_count(3) # Optional 
         # with tracer:
-            traceInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-            traceTag = trace_outgoing_remote_call_func(traceInfo)
-            with traceTag:
-                traceInfo = TraceObject('deductCreditMethod', 'deductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
-                do_incoming_remote_call(traceTag, success=True, trace_obj=traceInfo)
+        traceInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        traceTag = trace_outgoing_remote_call_func(traceInfo)
+        if traceTag:
+            traceInfo = TraceObject('deductCreditMethod', 'deductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
+            do_incoming_remote_call(traceTag, success=True, trace_obj=traceInfo)
 
 
 ##################################### Functions #######################################
 def trace_outgoing_remote_call_func(trace_obj: TraceObject):
     call = getsdk().trace_outgoing_remote_call(
-                    trace_obj.Method, trace_obj.Service, trace_obj.Endpoint,
-                    onesdk.Channel(onesdk.ChannelType.IN_PROCESS, trace_obj.Endpoint),
-                    protocol_name=trace_obj.Protocol)
+        trace_obj.Method, trace_obj.Service, trace_obj.Endpoint,
+        onesdk.Channel(onesdk.ChannelType.IN_PROCESS, trace_obj.Endpoint),
+        protocol_name=trace_obj.Protocol)
     with call:
-            strtag = call.outgoing_dynatrace_string_tag
-            return strtag
+        strtag = call.outgoing_dynatrace_string_tag
+        return strtag
 
 def trace_incoming_remote_call_func(strtag, success, trace_obj: TraceObject):
     incall = getsdk().trace_incoming_remote_call(
