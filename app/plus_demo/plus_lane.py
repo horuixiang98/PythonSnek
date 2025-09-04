@@ -43,6 +43,9 @@ def mock_outgoing_web_request_one(request: Request):
         wreq.add_response_headers({'Content-Length': '1234'})
         wreq.set_status_code(200) # OK
 
+        sdk.add_custom_request_attribute('Price', 2.30)
+        sdk.add_custom_request_attribute('Car Plate', "WWW7564")
+
         # Check CarPlate in DB
         traceCarPlateOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
         traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
@@ -81,6 +84,9 @@ def mock_outgoing_web_request_two(request: Request):
         wreq.add_response_headers({'Content-Length': '1234'})
         wreq.set_status_code(200) # OK
 
+        sdk.add_custom_request_attribute('Price', 2.30)
+        sdk.add_custom_request_attribute('Car Plate', "JPP881")
+
         # Check CarPlate in DB
         traceCarPlateOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
         traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
@@ -103,7 +109,7 @@ def mock_outgoing_web_request_two(request: Request):
         do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo, queries=deductCreditQueries)
 
 @app.get("/plus_lane_three")
-def mock_outgoing_web_request_two(request: Request):
+def mock_outgoing_web_request_three(request: Request):
     sdk = getsdk()
     wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_one/')
     with wappinfo:
@@ -142,6 +148,47 @@ def mock_outgoing_web_request_two(request: Request):
         traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
         deductCreditQueries=['BEGIN TRAN;','UPDATE creditBalance SET credit = credit - 2.30 WHERE id = 23;', 'COMMIT;']
         do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo, queries=deductCreditQueries)
+
+@app.get("/plus_lane_three")
+def mock_outgoing_web_request_three(request: Request):
+    sdk = getsdk()
+    wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_one/')
+    with wappinfo:
+        wreq = sdk.trace_incoming_web_request(
+            wappinfo,
+            'http://plus-demo.com/plus_lane_three/',
+            'GET',
+            headers={'Host': 'plus-demo.com'},
+            remote_address='127.0.0.1:12345')
+    with wreq:
+        
+        wreq.add_parameter('my_form_field', '1234')
+        # Process web request
+        wreq.add_response_headers({'Content-Length': '1234'})
+        wreq.set_status_code(200) # OK
+
+        sdk.add_custom_request_attribute('Price', 2.30)
+        sdk.add_custom_request_attribute('Car Plate', "JRP9898")
+        # Check CarPlate in DB
+        traceCarPlateOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
+        traceCarPlateIncomingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        traceCarPlateQueries=['BEGIN TRAN;', 'SELECT TOP 1 id FROM Carplate ORDER BY id;', 'SELECT * FROM creditBalance WHERE id = 23','COMMIT;']
+        do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo, queries=traceCarPlateQueries)
+        # dbinfoCheckCarPlate = sdk.create_database_info(
+        #     'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
+        #     oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
+        # with sdk.trace_sql_database_request(dbinfoCheckCarPlate, 'SELECT JGP9898 FROM CarPlate;') as tracer:
+        # Do actual DB request
+        # tracer.set_rows_returned(42) # Optional
+        # tracer.set_round_trip_count(3) # Optional 
+        # with tracer:
+        traceDeductCreditOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        traceTag = trace_outgoing_remote_call_func(traceDeductCreditOutgoingInfo)
+        print('traceTag: ', traceTag)
+        traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
+        deductCreditQueries=['BEGIN TRAN;','UPDATE creditBalance SET credit = credit - 2.30 WHERE id = 23;', 'COMMIT;']
+        do_incoming_remote_call(traceTag, success=False, trace_obj=traceDeductCreditIncomingInfo, queries=deductCreditQueries)
 
 ##################################### Functions #######################################
 def trace_outgoing_remote_call_func(trace_obj: TraceObject):
