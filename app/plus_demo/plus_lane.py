@@ -70,9 +70,9 @@ def trace_outgoing_remote_call_func(trace_obj: TraceObject):
         trace_obj.Method, trace_obj.Service, trace_obj.Endpoint,
         onesdk.Channel(onesdk.ChannelType.IN_PROCESS, trace_obj.Endpoint),
         protocol_name=trace_obj.Protocol)
-    with call:
-        strtag = call.outgoing_dynatrace_string_tag
-        return strtag
+        
+    strtag = call.outgoing_dynatrace_string_tag
+    return strtag
 
 def trace_incoming_remote_call_func(strtag, success, trace_obj: TraceObject):
     incall = getsdk().trace_incoming_remote_call(
