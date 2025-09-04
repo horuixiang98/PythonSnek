@@ -41,20 +41,26 @@ def mock_outgoing_web_request(request: Request):
         wreq.add_parameter('my_form_field', '1234')
         # Process web request
         wreq.add_response_headers({'Content-Length': '1234'})
-        
         wreq.set_status_code(200) # OK
-        dbinfoCheckCarPlate = sdk.create_database_info(
-            'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
-            oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
-        with sdk.trace_sql_database_request(dbinfoCheckCarPlate, 'SELECT JGP9898 FROM CarPlate;') as tracer:
-            # Do actual DB request
-            tracer.set_rows_returned(42) # Optional
-            tracer.set_round_trip_count(3) # Optional 
-            with tracer:
-                traceInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-                traceTag = trace_outgoing_remote_call_func(traceInfo)
-                with traceTag:
-                        do_remote_call(traceTag, success=True)
+
+        # Check CarPlate in DB
+        traceCarPlateInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateInfo)
+        with traceCarPlateTag:
+            do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateInfo)
+        # dbinfoCheckCarPlate = sdk.create_database_info(
+        #     'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
+        #     oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
+        # with sdk.trace_sql_database_request(dbinfoCheckCarPlate, 'SELECT JGP9898 FROM CarPlate;') as tracer:
+        # Do actual DB request
+        # tracer.set_rows_returned(42) # Optional
+        # tracer.set_round_trip_count(3) # Optional 
+        # with tracer:
+        traceInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        traceTag = trace_outgoing_remote_call_func(traceInfo)
+        with traceTag:
+            traceInfo = TraceObject('deductCreditMethod', 'deductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
+            do_incoming_remote_call(traceTag, success=True, trace_obj=traceInfo)
 
 
 ##################################### Functions #######################################
@@ -97,19 +103,18 @@ def traced_db_operation(dbinfo, sql):
     print('-db', dbinfo, sql)
 
 
-def do_remote_call(strtag, success):
+def do_incoming_remote_call(strtag, success, trace_obj: TraceObject):
     workerthread = threading.Thread(
         target=do_remote_call_thread_func,
-        args=(strtag, success))
+        args=(strtag, success, trace_obj))
     workerthread.start()
     # Note that we need to join the thread, as all tagging assumes synchronous
     # calls.
     workerthread.join()
 
-def do_remote_call_thread_func(strtag, success):
+def do_remote_call_thread_func(strtag, success, trace_obj: TraceObject):
     try:
-        traceInfo = TraceObject('deductCreditMethod', 'deductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
-        incall = trace_incoming_remote_call_func(strtag, success, traceInfo)
+        incall = trace_incoming_remote_call_func(strtag, success, trace_obj)
         with incall:
             dbinfoDeductCredit = getsdk().create_database_info(
                 'deductCredit', onesdk.DatabaseVendor.SQLSERVER,
