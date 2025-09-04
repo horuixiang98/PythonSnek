@@ -70,7 +70,7 @@ def mock_outgoing_web_request_one(request: Request):
 @app.get("/plus_lane_two")
 def mock_outgoing_web_request_two(request: Request):
     sdk = getsdk()
-    wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_one/')
+    wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_two/')
     with wappinfo:
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
@@ -111,7 +111,7 @@ def mock_outgoing_web_request_two(request: Request):
 @app.get("/plus_lane_three")
 def mock_outgoing_web_request_three(request: Request):
     sdk = getsdk()
-    wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_one/')
+    wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_three/')
     with wappinfo:
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
