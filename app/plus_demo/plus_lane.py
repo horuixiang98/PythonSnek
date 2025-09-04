@@ -113,18 +113,21 @@ def mock_outgoing_web_request_two(request: Request):
             'GET',
             headers={'Host': 'plus-demo.com'},
             remote_address='127.0.0.1:12345')
-    with wreq:  
+    with wreq:
+        
         wreq.add_parameter('my_form_field', '1234')
         # Process web request
         wreq.add_response_headers({'Content-Length': '1234'})
         wreq.set_status_code(200) # OK
-
-        # Check CarPlate in DB
-        traceCarPlateOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-        traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
-        traceCarPlateIncomingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-        traceCarPlateQueries=['BEGIN TRAN;', 'SELECT TOP 1 id FROM Carplate ORDER BY id;', 'SELECT * FROM creditBalance WHERE id = 23','COMMIT;']
-        with do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo, queries=traceCarPlateQueries):
+        try:  
+            # Check CarPlate in DB
+            traceCarPlateOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+            traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
+            traceCarPlateIncomingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+            traceCarPlateQueries=['BEGIN TRAN;', 'SELECT TOP 1 id FROM Carplate ORDER BY id;', 'SELECT * FROM creditBalance WHERE id = 23','COMMIT;']
+            do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo, queries=traceCarPlateQueries):
+        except Exception as e:
+            print(f"Error processing request: {e}")
         # dbinfoCheckCarPlate = sdk.create_database_info(
         #     'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
         #     oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
@@ -133,13 +136,15 @@ def mock_outgoing_web_request_two(request: Request):
         # tracer.set_rows_returned(42) # Optional
         # tracer.set_round_trip_count(3) # Optional 
         # with tracer:
+        try: 
             traceDeductCreditOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
             traceTag = trace_outgoing_remote_call_func(traceDeductCreditOutgoingInfo)
             print('traceTag: ', traceTag)
             traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
             deductCreditQueries=['BEGIN TRAN;','UPDATE creditBalance SET credit = credit - 2.30 WHERE id = 23;', 'COMMIT;']
             do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo, queries=deductCreditQueries)
-
+        except Exception as e:
+                    print(f"Error processing request: {e}")
 ##################################### Functions #######################################
 def trace_outgoing_remote_call_func(trace_obj: TraceObject):
     call = getsdk().trace_outgoing_remote_call(
