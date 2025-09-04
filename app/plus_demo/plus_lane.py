@@ -44,11 +44,10 @@ def mock_outgoing_web_request(request: Request):
         wreq.set_status_code(200) # OK
 
         # Check CarPlate in DB
-        # traceCarPlateOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-        # traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
-        # if traceCarPlateTag:
-        #     traceCarPlateIncomingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-        #     do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo)
+        traceCarPlateOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        traceCarPlateTag = trace_outgoing_remote_call_func(traceCarPlateOutgoingInfo)
+        traceCarPlateIncomingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+        do_incoming_remote_call(traceCarPlateTag, success=True, trace_obj=traceCarPlateIncomingInfo)
         # dbinfoCheckCarPlate = sdk.create_database_info(
         #     'CheckCarPlate', oneagent.sdk.DatabaseVendor.SQLSERVER,
         #     oneagent.sdk.Channel(oneagent.sdk.ChannelType.TCP_IP, '127.0.0.1:6666'))
