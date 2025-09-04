@@ -56,11 +56,11 @@ def mock_outgoing_web_request(request: Request):
         # tracer.set_rows_returned(42) # Optional
         # tracer.set_round_trip_count(3) # Optional 
         # with tracer:
-        traceInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
-        traceTag = trace_outgoing_remote_call_func(traceInfo)
-        with traceTag:
-            traceInfo = TraceObject('deductCreditMethod', 'deductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
-            do_incoming_remote_call(traceTag, success=True, trace_obj=traceInfo)
+            traceInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
+            traceTag = trace_outgoing_remote_call_func(traceInfo)
+            with traceTag:
+                traceInfo = TraceObject('deductCreditMethod', 'deductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
+                do_incoming_remote_call(traceTag, success=True, trace_obj=traceInfo)
 
 
 ##################################### Functions #######################################
