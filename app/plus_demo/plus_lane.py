@@ -59,9 +59,10 @@ def mock_outgoing_web_request(request: Request):
         # with tracer:
         traceDeductCreditOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
         traceTag = trace_outgoing_remote_call_func(traceDeductCreditOutgoingInfo)
-        print('traceTag: ', traceTag)
-        traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
-        do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo)
+        with traceTag:
+            print('traceTag: ', traceTag)
+            traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
+            do_incoming_remote_call(traceTag, success=True, trace_obj=traceDeductCreditIncomingInfo)
 
 
 ##################################### Functions #######################################
@@ -70,9 +71,9 @@ def trace_outgoing_remote_call_func(trace_obj: TraceObject):
         trace_obj.Method, trace_obj.Service, trace_obj.Endpoint,
         onesdk.Channel(onesdk.ChannelType.IN_PROCESS, trace_obj.Endpoint),
         protocol_name=trace_obj.Protocol)
-
-    strtag = call.outgoing_dynatrace_string_tag
-    return strtag
+    with call:
+        strtag = call.outgoing_dynatrace_string_tag
+        return strtag
 
 def trace_incoming_remote_call_func(strtag, success, trace_obj: TraceObject):
     incall = getsdk().trace_incoming_remote_call(
