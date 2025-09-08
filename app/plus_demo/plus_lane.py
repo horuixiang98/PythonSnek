@@ -152,7 +152,7 @@ def mock_outgoing_web_request_three(request: Request):
 @app.get("/plus_lane_three_fail")
 def mock_outgoing_web_request_three(request: Request):
     sdk = getsdk()
-    wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_one/')
+    wappinfo = sdk.create_web_application_info(virtual_host='plus-demo.com',application_id='PlusApplication',context_root='/plus_lane_three/')
     with wappinfo:
         wreq = sdk.trace_incoming_web_request(
             wappinfo,
@@ -186,7 +186,7 @@ def mock_outgoing_web_request_three(request: Request):
         traceDeductCreditOutgoingInfo = TraceObject('ScannerPyMethod', 'ScannerPyService', 'dupypr://plus-demo.com/ScannerEndpoint', 'Scanner_PY_PROTOCOL')
         traceTag = trace_outgoing_remote_call_func(traceDeductCreditOutgoingInfo)
         print('traceTag: ', traceTag)
-        traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/ScannerEndpoint', 'RMI/custom')
+        traceDeductCreditIncomingInfo = TraceObject('DeductCreditMethod', 'DeductCreditService', 'dupypr://plus-demo.com/DeductCreditEndpoint', 'RMI/custom')
         deductCreditQueries=['BEGIN TRAN;','UPDATE creditBalance SET credit = credit - 2.30 WHERE id = 23;', 'COMMIT;']
         do_incoming_remote_call(traceTag, success=False, trace_obj=traceDeductCreditIncomingInfo, queries=deductCreditQueries)
 
