@@ -205,9 +205,6 @@ def trace_incoming_remote_call_func(strtag, success, trace_obj: TraceObject):
             trace_obj.Method, trace_obj.Service,
             trace_obj.Endpoint,
             protocol_name=trace_obj.Protocol, str_tag=strtag)
-    with incall:
-        if not success:
-            raise RuntimeError('Remote call failed on the server side.')
     return incall
 
 
@@ -242,6 +239,8 @@ def do_remote_call_thread_func(strtag, success, trace_obj: TraceObject, queries)
     try:
         incall = trace_incoming_remote_call_func(strtag, success, trace_obj)
         with incall:
+            if not success:
+                raise RuntimeError('Remote call failed on the server side.')
             dbinfoDeductCredit = getsdk().create_database_info(
                 'deductCredit', onesdk.DatabaseVendor.SQLSERVER,
                 onesdk.Channel(onesdk.ChannelType.TCP_IP, '10.0.0.42:6666'))
