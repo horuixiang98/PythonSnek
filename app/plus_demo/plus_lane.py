@@ -208,7 +208,7 @@ def trace_incoming_remote_call_func(strtag, success, trace_obj: TraceObject):
     with incall:
         if not success:
             raise RuntimeError('Remote call failed on the server side.')
-        return incall
+    return incall
 
 
 
