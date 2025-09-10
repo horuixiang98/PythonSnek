@@ -165,7 +165,7 @@ def mock_outgoing_web_request_three(request: Request):
         wreq.add_parameter('my_form_field', '1234')
         # Process web request
         wreq.add_response_headers({'Content-Length': '1234'})
-        wreq.set_status_code(200) # OK
+        wreq.set_status_code(500) # FAIL
 
         sdk.add_custom_request_attribute('Price', 2.30)
         sdk.add_custom_request_attribute('Car Plate', "JRP9898")
